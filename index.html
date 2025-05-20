@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页</title>
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/style2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        /* 重设home section样式以实现全屏效果 */
+        section.home {
+            padding: 0;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            background-color: #000; /* 添加背景色，防止视频加载前的白屏 */
+        }
+        
+        /* 确保视频填满整个屏幕 */
+        .home video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+
+        /* 文字居中显示 */
+        .content {
+            text-align: center;
+            max-width: 90%;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: calc(100vh - 120px);
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+            color: #fff; /* 确保文字颜色为白色 */
+        }
+        
+        .content.active {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+        
+        .video-slide {
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        
+        .video-slide.active {
+            opacity: 1;
+        }
+        
+        .btn-effect {
+            position: relative;
+            display: inline-block;
+            padding: 10px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            border-radius: 5px;
+            color: #fff;
+            font-weight: bold;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .btn-effect:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-effect:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+        
+        .btn-effect:hover:before {
+            left: 100%;
+        }
+        
+        .content-section {
+            margin: 15px 0;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #38B48B;
+        }
+        
+        .content-section h3 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .content-section p {
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .highlight {
+            color: #d34444;
+            font-weight: bold;
+        }
+        
+        .tag-cloud {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            margin: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        .project-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+        
+        .project-info h4 {
+            color: #fff;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .project-info p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.4;
+            margin: 2px 0;
+        }
+
+        .home-title {
+            margin-bottom: 15px;
+        }
+
+        .home-title h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .home-description {
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        @media (max-height: 800px) {
+            .content-section {
+                margin: 10px 0;
+                padding: 10px;
+            }
+            .content-section p {
+                line-height: 1.4;
+                margin-bottom: 3px;
+            }
+            .tag-cloud {
+                margin: 10px 0;
+            }
+            .project-info {
+                margin-top: 10px;
+            }
+        }
+    </style>
+    
+    <!-- 添加额外的样式使视频全屏显示 -->
+    <style>
+        /* 调整导航栏样式 */
+        header {
+            background-color: rgba(44, 48, 51, 0.85) !important; /* 墨竹黑 */
+            width: 100%;
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 15px 5% !important;
+            border-bottom: 2px solid rgba(58, 125, 68, 0.5); /* 翠竹绿边框 */
+        }
+        
+        /* 确保内容区域不被导航栏遮挡 */
+        .home .content {
+            padding-top: 30px;
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+        }
+        
+        /* 调整页面布局 */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        /* 调整导航栏容器 */
+        div[style*="display: block;width: 100%;height: 68px;"] {
+            height: auto !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        
+        /* 新增header-container样式 */
+        .header-container {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        
+        /* 调整导航滑块位置 */
+        .slider-navigation {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            transform: none;
+            z-index: 10;
+        }
+        
+        /* 调整active链接样式 */
+        .navigation-items a.active {
+            color: #3A7D44 !important; /* 翠竹绿 */
+            font-weight: bold;
+        }
+        
+        /* 导航链接悬停效果 */
+        .navigation-items a:hover {
+            color: #E6A23C !important; /* 剑门黄 */
+        }
+        
+        /* 修改按钮样式 */
+        .btn-effect {
+            background: rgba(61, 111, 141, 0.3) !important; /* 青城蓝 */
+            border: 2px solid #3D6F8D !important;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-effect:hover {
+            background: rgba(61, 111, 141, 0.5) !important;
+            border-color: #E6A23C !important; /* 剑门黄 */
+            box-shadow: 0 5px 15px rgba(58, 125, 68, 0.3) !important; /* 翠竹绿阴影 */
+        }
+        
+        /* 调整导航点样式 */
+        .slider-navigation .nav-btn {
+            background: #F8F9FA; /* 云雾白 */
+        }
+        
+        .slider-navigation .nav-btn.active {
+            background: #3A7D44 !important; /* 翠竹绿 */
+        }
+        
+        /* 高亮文字颜色调整 */
+        .highlight {
+            color: #C83E3D !important; /* 蜀锦红 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-container">
+        <header>
+            <a href="index.html" class="brand">川魂匠心</a>
+            <div class="menu-btn"></div>
+            <div class="navigation">
+                <div class="navigation-items">
+                    <a href="index.html" class="active">序章·川魂启程</a>
+                    <a href="main.html">第一篇章·生生不息</a>
+                    <a href="shida_html/one.html">第二篇章·生态川境</a>
+                    <a href="page2.html">第三篇章·光明川流</a>
+                    <a href="last2.html">第四篇章·云词政策</a>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <section class="home">
+        <video class="video-slide active" src="1 .mp4" autoplay muted loop></video>
+        <div class="content active">
+            <div class="home-title">
+                <h1>川魂匠心<br><span>长路与光明的交响</span></h1>
+            </div>
+            <div class="home-description">
+                <p>项目简介：四川——这片被时光厚爱的土地，在雪山与江河、火锅与茶香之间，以磅礴的自然与绵长的人文，谱写出"光明与长路"的交响。我们以科学为笔、艺术为墨，将它的天地大美与千年匠心，凝练成可触可感的视觉诗篇。</p>
+            </div>
+            <a href="#" class="btn-effect" onclick="sliderNav(1); return false;">更多介绍</a>
+        </div>
+        
+        <div class="content">
+            <div class="content-section" style="text-align: center; padding: 30px 20px;">
+                <p style="font-size: 20px; color: #fff; line-height: 1.8; margin-bottom: 20px;">
+                    「川魂匠心」不仅是数据的陈列，<br>
+                    更是一场沉浸式的文化行旅。
+                </p>
+                <p style="margin: 40px 0; font-size: 18px; color: #fff;">我们邀请您：</p>
+                <p style="font-size: 22px; line-height: 2.2; margin-bottom: 10px; color: rgba(255, 255, 255, 0.9);">
+                    <span class="highlight">✨ 用手指丈量贡嘎山的海拔曲线</span>
+                </p>
+                <p style="font-size: 22px; line-height: 2.2; margin-bottom: 10px; color: rgba(255, 255, 255, 0.9);">
+                    <span class="highlight">✨ 用眼睛解码三星堆青铜的远古密语</span>
+                </p>
+                <p style="font-size: 22px; line-height: 2.2; margin-bottom: 30px; color: rgba(255, 255, 255, 0.9);">
+                    <span class="highlight">✨ 用心跳共振三线建设的工业脉搏</span>
+                </p>
+            </div>
+            
+            <div class="project-info">
+                <h4>项目资料来源</h4>
+                <p>• 四川省官方数据及各厅局公开资料 • 学术平台收录的相关研究论文 • 省级博物馆公开资料 • 视频素材取自正版素材网站</p>
+            </div>
+            
+            <a href="#" class="btn-effect" onclick="sliderNav(0); return false;">返回首页</a>
+        </div>
+        
+        <div class="slider-navigation">
+            <div class="nav-btn active"></div>
+            <div class="nav-btn"></div>
+        </div>
+    </section>
+
+    <script type="text/javascript">
+        //Javacript for responsive navigation menu
+        const menuBtn = document.querySelector(".menu-btn");
+        const navigation = document.querySelector(".navigation");
+
+        menuBtn.addEventListener("click", () => {
+            menuBtn.classList.toggle("active");
+            navigation.classList.toggle("active");
+        });
+
+        //JavaScript for content switching
+        const btns = document.querySelectorAll(".nav-btn");
+        const contents = document.querySelectorAll(".content");
+
+        var sliderNav = function(manual) {
+            btns.forEach((btn) => {
+                btn.classList.remove("active");
+            });
+
+            contents.forEach((content) => {
+                content.classList.remove("active");
+            });
+
+            btns[manual].classList.add("active");
+            contents[manual].classList.add("active");
+        }
+
+        btns.forEach((btn, i) => {
+            btn.addEventListener("click", () => {
+                sliderNav(i);
+            });
+        });
+    </script>
+
+</body>
+
+</html>

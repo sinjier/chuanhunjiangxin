@@ -1,0 +1,1461 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../CSS/style2.css">
+    <script>
+        // 添加错误处理
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('Error: ' + msg + '\nurl: ' + url + '\nline: ' + line);
+            return false;
+        };
+        
+        // 添加资源加载错误处理
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.getElementsByTagName('link');
+            for(let i = 0; i < links.length; i++) {
+                links[i].onerror = function() {
+                    console.error('Failed to load resource: ' + this.href);
+                };
+            }
+        });
+    </script>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", sans-serif;
+        }
+        
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: white !important;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        body {
+            padding-top: 98px; /* 为导航栏预留空间 */
+        }
+        
+        .map {
+            width: 100%;
+            height: calc(100% - 98px);
+            position: relative;
+        }
+
+        /* 主要内容区域样式 */
+        .content-container {
+            flex: 1;
+            width: 100%;
+            height: calc(100vh - 98px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #chartContainer, #mapContainer {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        /* 以下是原有的其他样式 */
+        /* 以下替换原有的header相关样式 */
+        /* 导航栏容器样式 */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        /* 主导航栏样式 */
+        .main-nav {
+            background-color: rgba(44, 48, 51, 0.85);
+            border-bottom: 2px solid rgba(58, 125, 68, 0.5);
+            padding: 15px 5%;
+            height: 68px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 次导航栏样式 */
+        .sub-nav {
+            background-color: rgba(44, 48, 51, 0.85);
+            border-bottom: 2px solid rgba(58, 125, 68, 0.5);
+            padding: 5px 5%;
+            height: 30px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* 品牌名称样式 */
+        .brand {
+            color: #fff;
+            font-size: 22px; /* 增大品牌名称字体 */
+            font-weight: bold;
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        /* 导航链接容器样式 */
+        .navigation {
+            display: flex;
+            align-items: center;
+        }
+
+        .navigation-items, .navigation-items2 {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* 导航链接样式 */
+        .navigation-items a, .navigation-items2 a {
+            font-size: 18px !important; /* 增大导航链接字体 */
+            color: #fff;
+            transition: color 0.3s ease;
+            text-decoration: none;
+            padding: 5px 10px;
+        }
+
+        /* 导航链接悬停效果 */
+        .navigation-items a:hover, .navigation-items2 a:hover {
+            color: #E6A23C !important;
+        }
+
+        /* 激活的导航链接样式 */
+        .navigation-items a.active, .navigation-items2 a.active {
+            color: #3A7D44 !important;
+            font-weight: bold;
+        }
+        
+        /* 保留原有menu-btn相关样式，但调整为与新导航栏兼容 */
+        @media (max-width: 1040px) {
+            .main-nav {
+                padding: 12px 20px;
+            }
+            
+            .navigation {
+                display: none;
+            }
+            
+            .navigation.active {
+                position: fixed;
+                width: 100%;
+                height: 100vh;
+                top: 0;
+                left: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: rgba(1, 1, 1, 0.5);
+            }
+            
+            .navigation .navigation-items a {
+                color: #222;
+                font-size: 1.2em;
+                margin: 20px;
+            }
+            
+            .navigation .navigation-items a:before {
+                background: #222;
+                height: 5px;
+            }
+            
+            .navigation.active .navigation-items {
+                background: #fff;
+                width: 600px;
+                max-width: 600px;
+                margin: 20px;
+                padding: 40px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                border-radius: 5px;
+                box-shadow: 0 5px 25px rgb(1 1 1 / 20%);
+            }
+            
+            .menu-btn {
+                background: url(../menu.png)no-repeat;
+                background-size: 30px;
+                background-position: center;
+                width: 40px;
+                height: 40px;
+                cursor: pointer;
+                transition: 0.3s ease;
+            }
+            
+            .menu-btn.active {
+                z-index: 999;
+                background: url(../close.png)no-repeat;
+                background-size: 25px;
+                background-position: center;
+                transition: 0.3s ease;
+            }
+        }
+        
+        @media (max-width: 560px) {
+            .home .content h1 {
+                font-size: 3em;
+                line-height: 60px;
+            }
+        }
+        
+        .card {
+            background-color: #7591AD;
+            color: white;
+            padding: 15px;
+            height: 100%;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            font-size: 15px;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .card h2 {
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            padding-bottom: 5px;
+            text-align: center;
+        }
+        
+        .description-section {
+            display: none;
+            margin-bottom: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            /* 移除最大高度限制，允许内容滚动 */
+        }
+        
+        .description-section.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .description-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .description-image {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        
+        /* 恢复原有的描述文本样式 */
+        .description-section p {
+            margin-bottom: 10px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        .description-section ul {
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+        
+        .description-section li {
+            margin-bottom: 6px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        .content-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+        
+        .image-section {
+            width: 100%;
+            height: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f5f5f5;
+            overflow: hidden;
+            padding: 10px;
+        }
+        
+        .image-section img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .chart-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+        
+        #rose-chart-container, #soil-chart-container, #terrain-chart-container {
+            height: 90%;
+            width: 100%;
+        }
+        
+        /* 图例样式 */
+        .legend-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            margin-top: 10px;
+            max-height: 70px;
+            overflow-y: auto;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 3px 8px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+        
+        .legend-label {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        #area-stats-container {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        .chart-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #area-chart-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #map-container {
+            width: 65%;
+            height: 100%;
+        }
+        
+        .description-container {
+            width: 35%;
+            height: 100%;
+            float: right;
+            z-index: 10;
+        }
+
+        /* 添加弹窗样式 */
+        .detail-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            color: #333;
+        }
+
+        .detail-popup h3 {
+            color: #043377;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #043377;
+            text-align: center;
+        }
+
+        .detail-popup p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .detail-popup ul {
+            padding-left: 20px;
+        }
+
+        .detail-popup li {
+            margin-bottom: 5px;
+        }
+
+        .detail-popup .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #043377;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+    <title>四川水系分布</title>
+</head>
+
+<body>
+    <!-- 替换原有的header部分为新的导航栏结构 -->
+    <!-- 导航栏容器 -->
+    <div class="nav-container">
+        <!-- 主导航栏 -->
+        <div class="main-nav">
+            <a href="../index.html" class="brand">川魂匠心</a>
+            <div class="menu-btn"></div>
+            <div class="navigation">
+                <div class="navigation-items">
+                    <a href="../index.html">序章·川魂启程</a>
+                    <a href="../main.html">第一篇章·生生不息</a>
+                    <a href="one.html" class="active">第二篇章·生态川境</a>
+                    <a href="../page2.html">第三篇章·光明川流</a>
+                    <a href="../last2.html">第四篇章·云词政策</a>
+                </div>
+            </div>
+    </div>
+        <!-- 次导航栏 - 根据需要可以添加适合此页面的次导航栏 -->
+        <div class="sub-nav">
+            <div class="navigation2">
+                <div class="navigation-items2">
+                    <a href="#" onclick="showVegetation(); return false;" class="active" id="nav-vegetation">植被类型</a>
+                    <a href="#" onclick="showTerrain(); return false;" id="nav-terrain">地形地势</a>
+                    <a href="#" onclick="showSoil(); return false;" id="nav-soil">土壤类型</a>
+                    <a href="#" onclick="showAreaStats(); return false;" id="nav-area-stats">建成区与保护区变化</a>
+    </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 以下是原有的内容部分，保持不变 -->
+    <div style="margin-top: 0; width: 100%; height: calc(100vh - 102px);">
+        <div id="content-container" style="width: 100%; height: 100%; display: flex;">
+            <div id="map-container" style="width: 65%; height: 100%;">
+                <div id="container" class="map" tabindex="0" title="地图容器" style="display: none;"></div>
+                <div id="image-container" style="width: 100%; height: 100%; display: none; background: #eee;">
+                    <img id="display-image" style="width: 100%; height: 100%; object-fit: contain;" alt="环境分布图" />
+                </div>
+                <div id="vegetation-container" style="width: 100%; height: 100%; display: block;">
+                    <div class="content-wrapper">
+                        <div class="chart-section" style="height: 100%;">
+                            <div id="rose-chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="soil-container" style="width: 100%; height: 100%; display: none;">
+                    <div class="content-wrapper">
+                        <div class="chart-section" style="height: 100%;">
+                            <div id="soil-chart-container" style="width: 100%; height: 90%;"></div>
+                            <!-- 土壤类型图例容器 -->
+                            <div class="legend-container" id="soil-legend">
+                                <!-- 图例将通过JavaScript动态生成 -->
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="terrain-container" style="width: 100%; height: 100%; display: none;">
+                    <div class="content-wrapper">
+                        <div class="chart-section" style="height: 100%;">
+                            <div id="terrain-chart-container" style="width: 100%; height: 90%;"></div>
+                            <!-- 地形地势图例容器 -->
+                            <div class="legend-container" id="terrain-legend">
+                                <!-- 图例将通过JavaScript动态生成 -->
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="area-stats-container" style="width: 100%; height: 100%; display: none;">
+                    <div class="chart-wrapper">
+                        <div id="area-chart-container"></div>
+            </div>
+                </div>
+            </div>
+            <div class="description-container" style="width: 35%; height: 100%;">
+                <div class="card">
+                    <h2>四川省环境概况</h2>
+                    <div id="description-content">
+                        <!-- Water Description -->
+                        <div class="description-section active" id="water-desc">
+                            <h3>水系概述</h3>
+                            <p>四川水系发达，河流众多，长江上游的重要支流如岷江、沱江、嘉陵江、乌江流经省内大部分地区。金沙江构成其西部和南部的部分边界。这些河流不仅是重要的水资源来源，也塑造了四川独特的地貌景观。</p>
+                            <p>主要湖泊有泸沽湖（部分）、邛海等。丰富的水资源支持了农业、工业和居民生活，同时也是众多水生野生动物的栖息地。</p>
+                        </div>
+                        <!-- Vegetation Description -->
+                        <div class="description-section" id="vegetation-desc">
+                            <h3>植被类型</h3>
+                            <img src="../img/vegetation.png" alt="植被分布图" class="description-image">
+                            <p>四川省植被类型丰富多样，从东部盆地的亚热带常绿阔叶林到西部高原的高山草甸和灌丛，是中国生物多样性最丰富的省份之一。</p>
+                            <p>四川省地处亚热带，北亚热带植被和青藏高原高寒植被交错分布。东部四川盆地主要为亚热带常绿阔叶林，川西南山地以亚热带常绿、落叶阔叶混交林为主。</p>
+                            <ul>
+                                <li>森林(35%)：亚高山针叶林、常绿阔叶林、落叶阔叶林</li>
+                                <li>灌丛(25%)：高山灌丛、干旱河谷灌丛</li>
+                                <li>草地(20%)：高山草甸、亚高山草甸</li>
+                                <li>农田植被(15%)：四川盆地平原和丘陵区</li>
+                                <li>湿地植被(3%)：沼泽植被、水生植被等</li>
+                                <li>其他(2%)：特殊生态系统</li>
+                            </ul>
+                            <p>多样的植被为大熊猫、金丝猴、羚牛等珍稀野生动物提供了理想的栖息和觅食环境。</p>
+                        </div>
+                        <!-- Terrain Description -->
+                        <div class="description-section" id="terrain-desc">
+                            <h3>地形地势</h3>
+                            <img src="../img/terrain.png" alt="地形地势图" class="description-image">
+                            <p>四川省地势西高东低，地形复杂多样，是中国地形最复杂多样的省份之一，地形垂直差异巨大。</p>
+                            <p>西部为青藏高原的东缘，平均海拔4000-5000米，贡嘎山海拔7556米为省内最高点。东部为四川盆地，平均海拔300-700米，最低点约244米。</p>
+                            <ul>
+                                <li>极高山区(16.5%)：海拔4500米以上，高山、冰川、雪山</li>
+                                <li>高山区(27.5%)：海拔3000-4500米，山高谷深</li>
+                                <li>中山区(32.5%)：海拔1000-3000米，山地起伏</li>
+                                <li>低山丘陵区(17.5%)：海拔500-1000米，丘陵起伏</li>
+                                <li>平原与河谷区(6%)：海拔500米以下，地势平坦</li>
+                            </ul>
+                            <p>这种复杂多样的地形为野生动物提供了丰富的生态位和多样的生存空间。</p>
+                        </div>
+                        <!-- Soil Description -->
+                        <div class="description-section" id="soil-desc">
+                            <h3>土壤类型</h3>
+                            <img src="../img/soil.png" alt="土壤分布图" class="description-image">
+                            <p>四川省土壤类型随地形和气候变化而异，垂直地带性明显，是中国土壤类型最丰富的省份之一。</p>
+                            <ul>
+                                <li>紫色土(32.5%)：四川盆地及边缘山地，质地多为中壤至重壤</li>
+                                <li>黄壤(22.5%)：盆地周围海拔800-1800米的低山地带</li>
+                                <li>高山草甸土(17.5%)：海拔3500米以上的高山区</li>
+                                <li>褐土(11%)：海拔1500-2500米的中山地带</li>
+                                <li>暗棕壤(9%)：海拔2500-3500米的亚高山区</li>
+                                <li>水稻土(6.5%)：成都平原、川南丘陵等水源丰富地区</li>
+                            </ul>
+                            <p>不同土壤类型影响植物群落的组成和结构，决定了野生动物的分布格局。如大熊猫主要分布在棕壤和暗棕壤区域，而水鹿等动物则多见于黄壤区域。</p>
+                        </div>
+                        <!-- 添加新的描述 - 建成区与保护区面积 -->
+                        <div class="description-section" id="area-stats-desc">
+                            <h3>建成区与保护区变化</h3>
+                            <p>四川省建成区面积从2000年的991.71平方公里迅速增长到2023年的3411.76平方公里，增长超过3倍。</p>
+                            <p>自然保护区面积从2004年的145.80万公顷增长到2023年的304.91万公顷，增长超过2倍。</p>
+                            <p>两者呈现同步增长趋势，表明四川省在经济发展的同时注重生态保护建设。</p>
+                            <p>关键时期：2006-2007年保护区面积大幅增加；2016年建成区面积增长率达到高峰14.64%；2020-2023年两者增长趋于平稳。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 先引入高德地图API -->
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=9d888be0a8a6c62f3770ea6df72f206d&plugin=Map3D,AMap.DistrictLayer,AMap.Scale,AMap.ToolBar"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script type="text/javascript">
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 预加载图片
+            var images = {
+                vegetation: new Image(),
+                terrain: new Image(),
+                soil: new Image()
+            };
+
+            // 设置图片源
+            images.vegetation.src = '../img/vegetation.png';
+            images.terrain.src = '../img/terrain.png';
+            images.soil.src = '../img/soil.png';
+
+            // 图片加载完成后的回调
+            var imagesLoaded = 0;
+            var totalImages = Object.keys(images).length;
+
+            Object.values(images).forEach(img => {
+                img.onload = function() {
+                    imagesLoaded++;
+                    if (imagesLoaded === totalImages) {
+                        console.log('所有图片加载完成');
+                    }
+                };
+                img.onerror = function() {
+                    console.error('图片加载失败:', img.src);
+                };
+            });
+
+            // 初始化地图
+            var map = new AMap.Map('container', {
+                zoom: 6,
+                center: [102.8, 30.0],
+                viewMode: '2D',
+                resizeEnable: true
+            });
+
+            // 添加地图控件
+            map.addControl(new AMap.Scale());
+            map.addControl(new AMap.ToolBar({
+                liteStyle: true
+            }));
+
+            // 加载河流数据
+            fetch('../data/剪切河流.json')
+                .then(response => response.json())
+                .then(data => {
+                    data.geometries.forEach(geometry => {
+                        if (geometry.type === 'LineString') {
+                            var path = geometry.coordinates.map(coord => [coord[0], coord[1]]);
+                            var polyline = new AMap.Polyline({
+                                path: path,
+                                strokeColor: '#1E90FF',
+                                strokeWeight: 2,
+                                strokeOpacity: 0.8
+                            });
+                            map.add(polyline);
+                        } else if (geometry.type === 'MultiLineString') {
+                            geometry.coordinates.forEach(line => {
+                                var path = line.map(coord => [coord[0], coord[1]]);
+                                var polyline = new AMap.Polyline({
+                                    path: path,
+                                    strokeColor: '#1E90FF',
+                                    strokeWeight: 2,
+                                    strokeOpacity: 0.8
+                                });
+                                map.add(polyline);
+                            });
+                        }
+                    });
+                })
+                .catch(error => console.error('加载河流数据失败:', error));
+
+            // 加载四川边界数据
+            fetch('../data/四川shp.json')
+                .then(response => response.json())
+                .then(data => {
+                    data.geometries.forEach(geometry => {
+                        if (geometry.type === 'Polygon') {
+                            var path = geometry.coordinates[0].map(coord => [coord[0], coord[1]]);
+                            var polygon = new AMap.Polygon({
+                                path: path,
+                                strokeColor: '#FF0000',
+                                strokeWeight: 2,
+                                strokeOpacity: 0.8,
+                                fillColor: '#FFFFFF',
+                                fillOpacity: 0.1
+                            });
+                            map.add(polygon);
+                        }
+                    });
+                })
+                .catch(error => console.error('加载边界数据失败:', error));
+
+            // 确保在DOM加载完成后初始化图表
+            console.log('DOM loaded, initializing charts...');
+            
+            // 植被分布数据
+            var vegetationData = {
+                categories: ['森林', '灌丛', '草地', '农田', '湿地', '其他'],
+                values: [
+                    { value: 35, name: '森林', itemStyle: { color: '#228B22' } },
+                    { value: 25, name: '灌丛', itemStyle: { color: '#32CD32' } },
+                    { value: 20, name: '草地', itemStyle: { color: '#90EE90' } },
+                    { value: 15, name: '农田', itemStyle: { color: '#FFD700' } },
+                    { value: 3, name: '湿地', itemStyle: { color: '#87CEEB' } },
+                    { value: 2, name: '其他', itemStyle: { color: '#D3D3D3' } }
+                ],
+                // 添加每个类型的详细描述
+                details: {
+                    '森林': `<p>四川森林覆盖率约为35%，主要分布在山地和高原地区。森林类型多样，包括：</p>
+                        <ul>
+                            <li><strong>亚高山针叶林</strong>：主要分布在海拔2800-3800米的区域，以冷杉、云杉、铁杉为主，是大熊猫重要栖息地</li>
+                            <li><strong>常绿阔叶林</strong>：分布在海拔1500-2800米的区域，以樟科、壳斗科植物为主，种类繁多</li>
+                            <li><strong>落叶阔叶林</strong>：多分布在海拔较低山区，以栎类、桦木、槭树等为主</li>
+                            <li><strong>落叶与常绿阔叶混交林</strong>：分布广泛，生物多样性丰富</li>
+                        </ul>
+                        <p>四川森林是众多珍稀野生动物的栖息地，如大熊猫、金丝猴、羚牛等，保护这些森林对保护生物多样性至关重要。</p>`,
+                    '灌丛': `<p>灌丛是四川省第二大植被类型，约占全省植被面积的25%，主要包括：</p>
+                        <ul>
+                            <li><strong>高山杜鹃灌丛</strong>：主要分布在海拔3000-4200米的高山地带，由各种杜鹃花组成，花期壮观</li>
+                            <li><strong>箭竹灌丛</strong>：分布在林线附近的区域，是大熊猫重要的食物来源和栖息地</li>
+                            <li><strong>干旱河谷灌丛</strong>：分布在金沙江、雅砻江等河谷地带，以荆棘和耐旱植物为主</li>
+                            <li><strong>亚高山柳灌丛</strong>：分布在高山湿地周围，是多种鸟类的栖息地</li>
+                        </ul>
+                        <p>灌丛生态系统为野生动物提供了重要的庇护所和食物来源，同时也有效防止水土流失。</p>`,
+                    '草地': `<p>草地约占四川省植被面积的20%，主要分布在高原地区，类型包括：</p>
+                        <ul>
+                            <li><strong>高山草甸</strong>：分布在海拔3600米以上的高山地带，植物多样性丰富，夏季野花盛开</li>
+                            <li><strong>亚高山草甸</strong>：位于海拔3000-3600米的区域，草本植物种类丰富</li>
+                            <li><strong>河谷草地</strong>：分布在河流两岸的平缓地带，草种优良</li>
+                            <li><strong>石质山地草地</strong>：分布在石灰岩山地，植被稀疏</li>
+                        </ul>
+                        <p>草地是藏羚羊、岩羊、雪豹等高山动物的重要栖息地，也是传统畜牧业的基础。草地生态系统保持着高原生态平衡，对水源涵养具有重要作用。</p>`,
+                    '农田': `<p>农田植被约占四川省植被面积的15%，主要分布在盆地和河谷平原，包括：</p>
+                        <ul>
+                            <li><strong>水田生态系统</strong>：主要分布在成都平原、川南丘陵等地区，以水稻种植为主</li>
+                            <li><strong>旱地农田</strong>：分布在丘陵和山前地带，种植小麦、玉米、油菜等作物</li>
+                            <li><strong>经济林果地</strong>：柑橘、李、桃等水果种植园</li>
+                            <li><strong>复合农业系统</strong>：四川传统的"林-粮-禽-畜-鱼"复合农业系统</li>
+                        </ul>
+                        <p>农田生态系统虽然是人工生态系统，但在四川千百年的耕作历史中，已经形成了独特的农田生物多样性，为许多鸟类和小型哺乳动物提供了栖息地。</p>`,
+                    '湿地': `<p>湿地约占四川省植被面积的3%，虽然面积不大，但生态价值极高：</p>
+                        <ul>
+                            <li><strong>沼泽湿地</strong>：主要分布在高原区域，如若尔盖湿地，是亚洲最大的高原湿地之一</li>
+                            <li><strong>湖泊湿地</strong>：如邛海、泸沽湖等，水生植物丰富</li>
+                            <li><strong>河流湿地</strong>：沿江河分布的滩涂和季节性湿地</li>
+                            <li><strong>人工湿地</strong>：水库和人工池塘形成的湿地生态系统</li>
+                        </ul>
+                        <p>湿地被称为"地球之肾"，具有净化水质、调节洪水、涵养水源等重要生态功能，同时也是众多珍稀水鸟和鱼类的栖息地。若尔盖湿地是黑颈鹤等濒危鸟类的重要繁殖地。</p>`,
+                    '其他': `<p>其他类型植被约占四川省植被面积的2%，包括一些特殊生态系统：</p>
+                        <ul>
+                            <li><strong>高山流石滩稀疏植被</strong>：分布在海拔4500米以上的高山区域</li>
+                            <li><strong>岩石缝隙植被</strong>：生长在峭壁和岩石缝隙中的特殊植物群落</li>
+                            <li><strong>盐碱地植被</strong>：适应盐碱环境的特殊植物群落</li>
+                            <li><strong>温泉周围植被</strong>：适应高温、高矿物质环境的特殊植物</li>
+                        </ul>
+                        <p>这些特殊生态系统虽然面积小，但往往包含了一些特有物种和珍稀物种，具有重要的科研和保护价值。不少特有的药用植物都分布在这些特殊生境中。</p>`
+                }
+            };
+
+            // 植被分布图表配置
+            var vegetationOption = {
+                title: {
+                    text: '四川省植被类型分布',
+                    left: 'center',
+                    textStyle: {
+                        color: '#333',
+                        fontSize: 18,
+                        fontWeight: 'bold'
+                    }
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c}%'
+                },
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 10,
+                    data: vegetationData.categories,
+                    textStyle: {
+                        color: '#333'
+                    }
+                },
+                series: [{
+                    name: '植被类型',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['50%', '45%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: true,
+                        position: 'outside',
+                        formatter: '{b}: {c}%',
+                        fontSize: 14
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: 16,
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: true
+                    },
+                    data: vegetationData.values
+                }]
+            };
+
+            // 初始化植被图表
+            var vegetationChartContainer = document.getElementById('rose-chart-container');
+            if (vegetationChartContainer) {
+                console.log('Vegetation chart container found');
+                var roseChart = echarts.init(vegetationChartContainer);
+                roseChart.setOption(vegetationOption);
+                console.log('Vegetation chart initialized');
+            } else {
+                console.error('Vegetation chart container not found');
+            }
+
+            // 初始化图表之后添加点击事件
+            roseChart.on('click', function(params) {
+                var name = params.name;
+                if (vegetationData.details[name]) {
+                    showDetailPopup('植被详细信息 - ' + name, vegetationData.details[name]);
+                }
+            });
+
+            // 土壤分布数据
+            var soilData = {
+                categories: ['紫色土', '黄壤', '高山草甸土', '褐土', '暗棕壤', '水稻土'],
+                values: [
+                    { value: 32.5, name: '紫色土', itemStyle: { color: '#8B4513' } },
+                    { value: 22.5, name: '黄壤', itemStyle: { color: '#DAA520' } },
+                    { value: 17.5, name: '高山草甸土', itemStyle: { color: '#90EE90' } },
+                    { value: 11, name: '褐土', itemStyle: { color: '#A0522D' } },
+                    { value: 9, name: '暗棕壤', itemStyle: { color: '#654321' } },
+                    { value: 6.5, name: '水稻土', itemStyle: { color: '#F4A460' } }
+                ],
+                // 添加每个类型的详细描述
+                details: {
+                    '紫色土': `<p>紫色土是四川最具代表性的土壤类型，约占全省土壤面积的32.5%，主要分布特点：</p>
+                        <ul>
+                            <li><strong>分布区域</strong>：主要分布在四川盆地及其边缘山地，海拔300-800米范围内</li>
+                            <li><strong>成土特点</strong>：由紫红色砂岩、泥岩风化形成，呈紫红、紫褐或棕紫色</li>
+                            <li><strong>理化性质</strong>：质地多为中壤至重壤，有机质含量中等，钾素丰富，磷素贫乏</li>
+                            <li><strong>农业价值</strong>：肥力较高，保水保肥能力强，适宜种植多种农作物</li>
+                        </ul>
+                        <p>紫色土因其独特的呈色和特性，形成了四川盆地特有的农业生态系统和景观特征。但紫色土也存在易流失的问题，需要采取水土保持措施。</p>`,
+                    '黄壤': `<p>黄壤是四川第二大土壤类型，约占全省土壤面积的22.5%，具有以下特征：</p>
+                        <ul>
+                            <li><strong>分布区域</strong>：分布于盆地周围海拔800-1800米的低山地带</li>
+                            <li><strong>成土特点</strong>：在温暖湿润气候下，经过强烈的淋溶和风化作用形成</li>
+                            <li><strong>理化性质</strong>：土层较厚，呈酸性，铁铝氧化物含量高，有机质含量中等</li>
+                            <li><strong>生态意义</strong>：黄壤区域是许多经济林木和野生植物的重要栖息地</li>
+                        </ul>
+                        <p>黄壤区域的森林覆盖率通常较高，是四川重要的木材和经济林产区，同时也是水鹿、小麂等野生动物的重要栖息环境。但黄壤易受侵蚀，森林砍伐后水土流失严重。</p>`,
+                    '高山草甸土': `<p>高山草甸土约占四川土壤面积的17.5%，主要特征包括：</p>
+                        <ul>
+                            <li><strong>分布区域</strong>：主要分布在海拔3500米以上的高山区，主要在川西高原地区</li>
+                            <li><strong>成土特点</strong>：在高寒气候条件下，有机质分解缓慢，积累丰富</li>
+                            <li><strong>理化性质</strong>：腐殖质含量高，结构疏松，呈微酸性至中性</li>
+                            <li><strong>生态功能</strong>：具有极强的水源涵养功能，是高山生态系统的基础</li>
+                        </ul>
+                        <p>高山草甸土区域是藏系羊、岩羊、藏野驴等高原野生动物的重要栖息地，也是高山草甸植物多样性的载体。这一区域同时也是重要的牧场，有丰富的牧草资源。</p>`,
+                    '褐土': `<p>褐土约占四川土壤面积的11%，主要特征包括：</p>
+                        <ul>
+                            <li><strong>分布区域</strong>：分布于海拔1500-2500米的中山地带，四川西北部山地常见</li>
+                            <li><strong>成土特点</strong>：在温带半湿润气候条件下形成，土体呈褐色</li>
+                            <li><strong>理化性质</strong>：中性至微酸性，腐殖质含量适中，结构良好</li>
+                            <li><strong>农业利用</strong>：肥力中等，多种植马铃薯、燕麦等耐寒作物</li>
+                        </ul>
+                        <p>褐土区域是多种针阔混交林的分布区，生物多样性较丰富。这一区域也是一些珍稀药用植物如黄连、天麻等的主要产区，具有重要的经济和生态价值。</p>`,
+                    '暗棕壤': `<p>暗棕壤约占四川土壤面积的9%，主要特征包括：</p>
+                        <ul>
+                            <li><strong>分布区域</strong>：分布于海拔2500-3500米的亚高山区，多在针叶林下</li>
+                            <li><strong>成土特点</strong>：在寒温带湿润气候下形成，常年低温</li>
+                            <li><strong>理化性质</strong>：呈弱酸性，有机质含量较高，腐殖质层较厚</li>
+                            <li><strong>生态价值</strong>：是亚高山针叶林的主要土壤类型，涵养水源能力强</li>
+                        </ul>
+                        <p>暗棕壤区域是大熊猫、金丝猴等珍稀动物的重要栖息地，森林覆盖率高，生态功能突出。这一区域的土壤和植被对维持区域水文循环和气候调节具有重要作用。</p>`,
+                    '水稻土': `<p>水稻土约占四川土壤面积的6.5%，主要特征包括：</p>
+                        <ul>
+                            <li><strong>分布区域</strong>：主要分布在成都平原、川南丘陵等水源丰富的平坦地区</li>
+                            <li><strong>成土特点</strong>：长期水耕熟化形成，具有明显的淹水、氧化还原特性</li>
+                            <li><strong>理化性质</strong>：粘重，有机质含量较高，保水保肥能力强</li>
+                            <li><strong>农业价值</strong>：是四川重要的粮食生产基地土壤类型</li>
+                        </ul>
+                        <p>水稻土区域形成了独特的水田生态系统，为多种两栖类、鱼类和水鸟提供了栖息环境。千百年来的稻作文化在这种土壤上发展，形成了四川特有的农业文化景观。</p>`
+                }
+            };
+
+            // 土壤分布图表配置
+            var soilOption = {
+                title: {
+                    text: '四川省土壤分布',
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c}%'
+                },
+                series: [
+                    {
+                        name: '土壤分布',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: true,
+                        formatter: '{b}: {c}%'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                                fontSize: '18',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: true
+                    },
+                    data: soilData.values
+                    }
+                ]
+            };
+
+            // 初始化土壤图表
+            var soilChartContainer = document.getElementById('soil-chart-container');
+            if (soilChartContainer) {
+                console.log('Soil chart container found');
+                var soilChart = echarts.init(soilChartContainer);
+                soilChart.setOption(soilOption);
+                console.log('Soil chart initialized');
+                
+                // 创建土壤类型图例
+                createLegend('soil-legend', soilData.values);
+            } else {
+                console.error('Soil chart container not found');
+            }
+
+            // 初始化图表之后添加点击事件
+            soilChart.on('click', function(params) {
+                var name = params.name;
+                if (soilData.details[name]) {
+                    showDetailPopup('土壤详细信息 - ' + name, soilData.details[name]);
+                }
+            });
+
+            // 地形分布数据
+            var terrainData = {
+                categories: ['极高山区', '高山区', '中山区', '低山丘陵区', '平原与河谷区'],
+                values: [
+                    { value: 16.5, name: '极高山区', itemStyle: { color: '#4B0082' } },
+                    { value: 27.5, name: '高山区', itemStyle: { color: '#800080' } },
+                    { value: 32.5, name: '中山区', itemStyle: { color: '#9370DB' } },
+                    { value: 17.5, name: '低山丘陵区', itemStyle: { color: '#DDA0DD' } },
+                    { value: 6, name: '平原与河谷区', itemStyle: { color: '#E6E6FA' } }
+                ],
+                // 添加每个类型的详细描述
+                details: {
+                    '极高山区': `<p>极高山区约占四川地形面积的16.5%，主要特征包括：</p>
+                        <ul>
+                            <li><strong>海拔范围</strong>：海拔4500米以上的区域</li>
+                            <li><strong>分布区域</strong>：主要分布在四川西部的甘孜、阿坝等地区</li>
+                            <li><strong>地貌特征</strong>：高山、冰川、雪山，地势陡峭，海拔垂直差异大</li>
+                            <li><strong>生态系统</strong>：以高山流石滩、冰缘植被和高山稀疏植被为主</li>
+                        </ul>
+                        <p>极高山区是雪豹、藏野牛等高海拔珍稀动物的栖息地，同时也是重要的水源涵养区。这些地区常年积雪，是长江、黄河等大河的发源地，具有重要的生态价值。</p>`,
+                    '高山区': `<p>高山区约占四川地形面积的27.5%，主要特征包括：</p>
+                        <ul>
+                            <li><strong>海拔范围</strong>：海拔3000-4500米的区域</li>
+                            <li><strong>分布区域</strong>：横断山脉、邛崃山脉等山系</li>
+                            <li><strong>地貌特征</strong>：山高谷深，地形破碎，崎岖陡峭</li>
+                            <li><strong>生态系统</strong>：以亚高山针叶林、高山草甸和灌丛为主</li>
+                        </ul>
+                        <p>高山区是大熊猫、羚牛等珍稀动物的主要栖息地，森林覆盖率高，生物多样性丰富。这一区域对于水土保持、生物多样性保护具有极其重要的意义。</p>`,
+                    '中山区': `<p>中山区是四川最大的地形区，约占全省地形面积的32.5%，主要特征包括：</p>
+                        <ul>
+                            <li><strong>海拔范围</strong>：海拔1000-3000米的区域</li>
+                            <li><strong>分布区域</strong>：主要分布在四川盆地周围的山地</li>
+                            <li><strong>地貌特征</strong>：山地起伏，沟壑纵横，生态环境多样</li>
+                            <li><strong>生态系统</strong>：常绿与落叶阔叶混交林、针阔混交林</li>
+                        </ul>
+                        <p>中山区生物多样性丰富，是许多特有种和珍稀种的分布区。这一区域也是重要的林业区和茶叶等经济作物产区，同时还分布有丰富的中药材资源。</p>`,
+                    '低山丘陵区': `<p>低山丘陵区约占四川地形面积的17.5%，主要特征包括：</p>
+                        <ul>
+                            <li><strong>海拔范围</strong>：海拔500-1000米的区域</li>
+                            <li><strong>分布区域</strong>：主要分布在四川盆地周边和盆地内部</li>
+                            <li><strong>地貌特征</strong>：丘陵起伏，坡度较缓，河网密布</li>
+                            <li><strong>生态系统</strong>：以次生林、经济林和农田生态系统为主</li>
+                        </ul>
+                        <p>低山丘陵区是四川重要的农业区和果林区，土地利用程度高。这一区域人口密度较大，是农村生态与人类活动相互影响最明显的区域。</p>`,
+                    '平原与河谷区': `<p>平原与河谷区约占四川地形面积的6%，主要特征包括：</p>
+                        <ul>
+                            <li><strong>海拔范围</strong>：海拔500米以下的区域</li>
+                            <li><strong>分布区域</strong>：成都平原、岷江谷地、沱江流域等</li>
+                            <li><strong>地貌特征</strong>：地势平坦，水网密布，土壤肥沃</li>
+                            <li><strong>生态系统</strong>：以农田生态系统、城市生态系统为主</li>
+                        </ul>
+                        <p>平原与河谷区是四川人口最密集、城市化程度最高的区域，是重要的粮食生产基地。这一区域虽然自然生态系统所占比例较小，但人工生态系统高度发达，形成了独特的农业文化景观。</p>`
+                }
+            };
+
+            // 地形分布图表配置
+            var terrainOption = {
+                title: {
+                    text: '四川省地形分布',
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c}%'
+                },
+                series: [
+                    {
+                        name: '地形分布',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: true,
+                        formatter: '{b}: {c}%'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                                fontSize: '18',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: true
+                    },
+                    data: terrainData.values
+                    }
+                ]
+            };
+            
+            // 初始化地形图表
+            var terrainChartContainer = document.getElementById('terrain-chart-container');
+            if (terrainChartContainer) {
+                console.log('Terrain chart container found');
+                var terrainChart = echarts.init(terrainChartContainer);
+                terrainChart.setOption(terrainOption);
+                console.log('Terrain chart initialized');
+                
+                // 创建地形地势图例
+                createLegend('terrain-legend', terrainData.values);
+            } else {
+                console.error('Terrain chart container not found');
+            }
+
+            // 初始化图表之后添加点击事件
+            terrainChart.on('click', function(params) {
+                var name = params.name;
+                if (terrainData.details[name]) {
+                    showDetailPopup('地形详细信息 - ' + name, terrainData.details[name]);
+                }
+            });
+
+            // 建成区面积数据（平方公里）
+            const buildupYears = ['1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'];
+            const buildupData = [924.50, 956.00, 991.71, 1092.76, 1201.41, 1357.37, 1393.94, 1442.93, 1272.88, 1328.35, 1391.68, 1509.51, 1629.73, 1788.13, 1901.72, 2058.11, 2216.56, 2281.64, 2615.59, 2832.25, 2982.32, 3054.31, 3190.49, 3367.42, 3411.76, 3411.76];
+            const growthRate = [null, 3.41, 3.74, 10.19, 9.94, 12.98, 2.69, 3.51, -11.79, 4.36, 4.77, 8.47, 7.96, 9.72, 6.35, 8.22, 7.7, 2.94, 14.64, 8.28, 5.3, 2.41, 4.46, 5.55, 1.32, 0];
+
+            // 自然保护区面积数据（万公顷）
+            const reserveYears = ['2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2018', '2019', '2020', '2021', '2023'];
+            const reserveData = [145.80, 150.80, 159.30, 210.05, 210.50, 277.48, 277.50, 277.12, 283.30, 292.38, 293.64, 293.64, 306.43, 305.84, 304.91, 304.91, 304.91];
+
+            // 为所有年份准备自然保护区数据，缺失的用null填充
+            const fullReserveData = buildupYears.map(year => {
+                const index = reserveYears.indexOf(year);
+                return index >= 0 ? reserveData[index] : null;
+            });
+
+            // 建成区与保护区面积变化图表配置
+            var areaStatsOption = {
+                title: {
+                    text: '四川省建成区面积与自然保护区面积变化趋势对比',
+                    left: 'center',
+                    top: 20,
+                    textStyle: {
+                        fontSize: 20
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '年<br/>';
+                        params.forEach(param => {
+                            let value = param.value;
+                            let unit = '';
+                            let prefix = '';
+                            
+                            if (param.seriesName === '建成区面积') {
+                                unit = ' 平方公里';
+                            } else if (param.seriesName === '自然保护区面积') {
+                                unit = ' 万公顷';
+                            } else if (param.seriesName === '建成区增长率') {
+                                unit = '%';
+                                prefix = '+';
+                                if (value < 0) prefix = '';
+                            }
+                            
+                            if (value !== null && value !== undefined) {
+                                result += param.marker + param.seriesName + ': ' + prefix + value + unit + '<br/>';
+                            }
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: ['建成区面积', '自然保护区面积', '建成区增长率'],
+                    top: 60
+                },
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: buildupYears,
+                    name: '年份',
+                    nameLocation: 'middle',
+                    nameGap: 35,
+                    axisLabel: {
+                        rotate: 45,
+                        interval: 1
+                    }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '建成区面积 (平方公里)',
+                        position: 'left',
+                        axisLine: {
+                            lineStyle: {
+                                color: '#5470C6'
+                            }
+                        },
+                        axisLabel: {
+                            formatter: '{value}'
+                        }
+                    },
+                    {
+                        type: 'value',
+                        name: '增长率 (%)',
+                        position: 'right',
+                        offset: 80,
+                        axisLine: {
+                            lineStyle: {
+                                color: '#EE6666'
+                            }
+                        },
+                        axisLabel: {
+                            formatter: '{value}%'
+                        }
+                    },
+                    {
+                        type: 'value',
+                        name: '自然保护区面积 (万公顷)',
+                        position: 'right',
+                        axisLine: {
+                            lineStyle: {
+                                color: '#91CC75'
+                            }
+                        },
+                        axisLabel: {
+                            formatter: '{value}'
+                        },
+                        min: function(value) {
+                            // 设置适当的最小值，确保柱状图在合理范围内显示
+                            return Math.max(0, value.min * 0.8);
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: '建成区面积',
+                        type: 'bar',
+                        data: buildupData,
+                        barWidth: '40%',
+                        itemStyle: {
+                            color: '#5470C6'
+                        },
+                        yAxisIndex: 0,
+                        z: 1
+                    },
+                    {
+                        name: '自然保护区面积',
+                        type: 'bar',
+                        data: fullReserveData,
+                        barWidth: '40%',
+                        itemStyle: {
+                            color: '#91CC75'
+                        },
+                        yAxisIndex: 2,  // 使用第三个y轴
+                        z: 2
+                    },
+                    {
+                        name: '建成区增长率',
+                        type: 'line',
+                        yAxisIndex: 1,  // 使用第二个y轴
+                        data: growthRate,
+                        smooth: false,
+                        symbolSize: 6,
+                        lineStyle: {
+                            width: 2
+                        },
+                        itemStyle: {
+                            color: '#EE6666'
+                        },
+                        z: 3
+                    }
+                ]
+            };
+
+            // 保留原有代码，添加新的函数 - 显示建成区与保护区面积变化图表
+            window.showAreaStats = function() {
+                var mapDiv = document.getElementById('container');
+                var imageContainer = document.getElementById('image-container');
+                var vegetationContainer = document.getElementById('vegetation-container');
+                var soilContainer = document.getElementById('soil-container');
+                var terrainContainer = document.getElementById('terrain-container');
+                var areaStatsContainer = document.getElementById('area-stats-container');
+
+                mapDiv.style.display = 'none';
+                imageContainer.style.display = 'none';
+                vegetationContainer.style.display = 'none';
+                soilContainer.style.display = 'none';
+                terrainContainer.style.display = 'none';
+                areaStatsContainer.style.display = 'block';
+
+                var areaChartContainer = document.getElementById('area-chart-container');
+                if (areaChartContainer) {
+                    var areaChart = echarts.init(areaChartContainer);
+                    areaChart.setOption(areaStatsOption);
+                    areaChart.resize();
+                    console.log('Area stats chart initialized');
+                }
+
+                updateDescription('area-stats');
+                updateActiveLink('area-stats');
+            };
+
+            // Function to handle showing an image (保留原有功能)
+            window.showImage = function(imageSrc, type) {
+                var mapDiv = document.getElementById('container');
+                var imageContainer = document.getElementById('image-container');
+                var vegetationContainer = document.getElementById('vegetation-container');
+                var soilContainer = document.getElementById('soil-container');
+                var terrainContainer = document.getElementById('terrain-container');
+                var areaStatsContainer = document.getElementById('area-stats-container');
+                var displayImage = document.getElementById('display-image');
+
+                mapDiv.style.display = 'none';
+                imageContainer.style.display = 'none';
+                vegetationContainer.style.display = 'none';
+                soilContainer.style.display = 'none';
+                terrainContainer.style.display = 'none';
+                areaStatsContainer.style.display = 'none';
+
+                if (type === 'terrain') {
+                    console.log('Showing terrain container');
+                    terrainContainer.style.display = 'block';
+                    var terrainChartContainer = document.getElementById('terrain-chart-container');
+                    if (terrainChartContainer) {
+                        var terrainChart = echarts.init(terrainChartContainer);
+                        terrainChart.setOption(terrainOption);
+                        terrainChart.resize();
+                        console.log('Terrain chart reinitialized');
+                    }
+                } else if (type === 'soil') {
+                    console.log('Showing soil container');
+                    soilContainer.style.display = 'block';
+                    var soilChartContainer = document.getElementById('soil-chart-container');
+                    if (soilChartContainer) {
+                        var soilChart = echarts.init(soilChartContainer);
+                        soilChart.setOption(soilOption);
+                        soilChart.resize();
+                        console.log('Soil chart reinitialized');
+                    }
+                } else if (type === 'vegetation') {
+                    console.log('Showing vegetation container');
+                    vegetationContainer.style.display = 'block';
+                    var roseChart = echarts.init(document.getElementById('rose-chart-container'));
+                    roseChart.setOption(vegetationOption);
+                    roseChart.resize();
+                }
+
+                updateDescription(type);
+                updateActiveLink(type);
+            };
+
+            // Function to handle showing the map
+            window.showMap = function() {
+                var mapDiv = document.getElementById('container');
+                var imageContainer = document.getElementById('image-container');
+                var vegetationContainer = document.getElementById('vegetation-container');
+                var soilContainer = document.getElementById('soil-container');
+                var terrainContainer = document.getElementById('terrain-container');
+                var areaStatsContainer = document.getElementById('area-stats-container');
+
+                mapDiv.style.display = 'block';
+                imageContainer.style.display = 'none';
+                vegetationContainer.style.display = 'none';
+                soilContainer.style.display = 'none';
+                terrainContainer.style.display = 'none';
+                areaStatsContainer.style.display = 'none';
+
+                updateDescription('water');
+                updateActiveLink('water');
+
+                map.setFitView();
+            };
+
+            // 保持原有功能不变
+            function updateDescription(type) {
+                var descriptionContent = document.getElementById('description-content');
+                var sections = descriptionContent.querySelectorAll('.description-section');
+
+                sections.forEach(function(section) {
+                    section.classList.remove('active');
+                });
+
+                var targetSection = document.getElementById(type + '-desc');
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                } else {
+                    document.getElementById('water-desc').classList.add('active');
+                }
+            }
+
+            // 更新导航栏链接高亮
+            function updateActiveLink(activeType) {
+                // 清除所有导航项的激活状态
+                var navLinks = document.querySelectorAll('.navigation-items2 a');
+                navLinks.forEach(function(link) {
+                    link.classList.remove('active');
+                });
+                
+                // 设置当前激活链接
+                var activeLink = document.getElementById('nav-' + activeType);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+
+            // 添加新的函数与新导航栏适配
+            window.showVegetation = function() {
+                showImage('../img/vegetation.png', 'vegetation');
+            };
+            
+            window.showTerrain = function() {
+                showImage('../img/terrain.png', 'terrain');
+            };
+            
+            window.showSoil = function() {
+                showImage('../img/soil.png', 'soil');
+            };
+
+            // Initialize with vegetation view
+            showVegetation();
+            
+            // 窗口大小改变时重新加载图表
+            window.addEventListener('resize', function() {
+                var areaStatsContainer = document.getElementById('area-stats-container');
+                if (areaStatsContainer && areaStatsContainer.style.display === 'block') {
+                    var areaChart = echarts.init(document.getElementById('area-chart-container'));
+                    areaChart.resize();
+                }
+                
+                // 调整其他图表大小
+                if (document.getElementById('soil-container').style.display === 'block') {
+                    soilChart.resize();
+                }
+                
+                if (document.getElementById('terrain-container').style.display === 'block') {
+                    terrainChart.resize();
+                }
+                
+                if (document.getElementById('vegetation-container').style.display === 'block') {
+                    roseChart.resize();
+                }
+            });
+        });
+    </script>
+
+    <!-- 在body的末尾添加弹窗HTML结构 -->
+    <div class="overlay" id="popup-overlay"></div>
+    <div class="detail-popup" id="detail-popup">
+        <button class="close-btn" id="detail-popup-close">&times;</button>
+        <h3 id="detail-popup-title">详细介绍</h3>
+        <div id="detail-popup-content"></div>
+    </div>
+
+    <script>
+        // 显示详细信息弹窗的函数
+        function showDetailPopup(title, content) {
+            document.getElementById('detail-popup-title').innerHTML = title;
+            document.getElementById('detail-popup-content').innerHTML = content;
+            document.getElementById('popup-overlay').style.display = 'block';
+            document.getElementById('detail-popup').style.display = 'block';
+        }
+
+        // 关闭弹窗
+        function closePopup() {
+            document.getElementById('popup-overlay').style.display = 'none';
+            document.getElementById('detail-popup').style.display = 'none';
+        }
+
+        // 当用户点击关闭按钮或遮罩层时关闭弹窗
+        document.getElementById('detail-popup-close').addEventListener('click', closePopup);
+        document.getElementById('popup-overlay').addEventListener('click', closePopup);
+    </script>
+
+    <!-- 添加创建图例的函数 -->
+    <script>
+        function createLegend(containerId, data) {
+            var container = document.getElementById(containerId);
+            container.innerHTML = ''; // 清空容器
+            
+            // 为每个数据项创建图例项
+            data.forEach(function(item) {
+                var legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                var colorBox = document.createElement('div');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = item.itemStyle.color;
+                
+                var label = document.createElement('div');
+                label.className = 'legend-label';
+                label.textContent = item.name + ': ' + item.value + '%';
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                container.appendChild(legendItem);
+            });
+        }
+    </script>
+</body>
+</html>

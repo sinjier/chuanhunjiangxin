@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>四川文化树图</title>
+    <!-- 引入 echarts.js -->
+    <script src="js/echarts.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <link rel="stylesheet" href="CSS/ini.css">
+    <link rel="stylesheet" href="CSS/style1.css">
+    <link rel="stylesheet" href="CSS/chart.css">
+    <link rel="stylesheet" href="CSS/style.css">
+    <!-- <script src="dist/extension/dataTool.js"></script> -->
+    <style>
+        /*重置默认的外边距和内边距*/
+        
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+         ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+         ::-webkit-scrollbar-track-piece {
+            background-color: #CCCCCC;
+            -webkit-border-radius: 6px;
+        }
+        
+         ::-webkit-scrollbar-thumb:vertical {
+            height: 5px;
+            background-color: #999999;
+            -webkit-border-radius: 6px;
+        }
+        
+         ::-webkit-scrollbar-thumb:horizontal {
+            width: 5px;
+            background-color: #CCCCCC;
+            -webkit-border-radius: 6px;
+        }
+        /*常用标签的样式重置*/
+        
+        i {
+            font-style: normal;
+        }
+        
+        a {
+            text-decoration: none;
+        }
+        
+        input {
+            outline: none;
+            border: none;
+        }
+        
+        li {
+            list-style: none;
+        }
+        /*设定html和body的宽度为100%*/
+        
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            height: 100%;
+            background: url(img/2.png);
+            background-size: cover;
+            background-attachment: fixed;
+            padding-top: 60px; /* 减小顶部内边距 */
+        }
+        
+        .chart-container {
+            width: 90%;
+            max-width: 1400px;
+            min-width: 800px;
+            height: 650px; /* 减小高度 */
+            margin: 0 auto;
+            background-color: rgba(44, 48, 51, 0.7); /* 墨竹黑 */
+            padding: 15px; /* 减小内边距 */
+            border-radius: 10px;
+            border: 1px solid rgba(58, 125, 68, 0.3); /* 翠竹绿边框 */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .title {
+            text-align: center;
+            color: #F8F9FA; /* 云雾白 */
+            font-size: 24px;
+            margin: 20px 0;
+            background-color: rgba(61, 111, 141, 0.7); /* 青城蓝 */
+            padding: 15px 0;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            border-bottom: 3px solid #3A7D44; /* 翠竹绿下边框 */
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            letter-spacing: 1px;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 5px 0; /* 减小上下边距 */
+        }
+
+        .switch-button {
+            background-color: #E6A23C; /* 剑门黄 */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .switch-button:hover {
+            background-color: #3A7D44; /* 翠竹绿 */
+            box-shadow: 0 3px 8px rgba(230, 162, 60, 0.3); /* 剑门黄阴影 */
+        }
+
+        .switch-button.active {
+            background-color: #3A7D44; /* 翠竹绿 */
+            border: 1px solid #E6A23C; /* 剑门黄边框 */
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #3A7D44; /* 翠竹绿 */
+            border: 1px solid #E6A23C; /* 剑门黄边框 */
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: none;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .back-button:hover {
+            background-color: #6A8CAF; /* 江水青 */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .modal-content {
+            position: relative;
+            margin: 5% auto;
+            padding: 20px;
+            width: 70%;
+            max-width: 800px;
+            background-color: rgba(44, 48, 51, 0.95); /* 墨竹黑 */
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(58, 125, 68, 0.3); /* 翠竹绿阴影 */
+            color: #F8F9FA; /* 云雾白 */
+            border: 1px solid rgba(61, 111, 141, 0.6); /* 青城蓝边框 */
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #E6A23C; /* 剑门黄 */
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-button:hover {
+            color: #C83E3D; /* 蜀锦红 */
+        }
+        
+        .modal-header {
+            border-bottom: 2px solid #3A7D44; /* 翠竹绿 */
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .modal-title {
+            color: #E6A23C; /* 剑门黄 */
+            letter-spacing: 1px;
+        }
+        
+        .modal-body {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .modal-image {
+            flex: 1;
+            min-width: 300px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .modal-image img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-description {
+            flex: 1;
+            min-width: 300px;
+            padding: 10px;
+            line-height: 1.6;
+        }
+
+        /* 导航栏样式 - 与top.html保持一致 */
+        .header-container {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        
+        header {
+            background-color: rgba(44, 48, 51, 0.85) !important; /* 墨竹黑 */
+            width: 100%;
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 15px 5% !important;
+            border-bottom: 2px solid rgba(58, 125, 68, 0.5); /* 翠竹绿边框 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .breadcrumb-container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 5px auto; /* 减小上下边距 */
+            padding: 8px 15px; /* 减小内边距 */
+            background-color: rgba(44, 48, 51, 0.7); /* 墨竹黑 */
+            border-radius: 5px;
+            border: 1px solid rgba(58, 125, 68, 0.3); /* 翠竹绿边框 */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            color: #F8F9FA; /* 云雾白 */
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .breadcrumb-item {
+            display: inline-block;
+            margin-right: 10px;
+            position: relative;
+        }
+        
+        .breadcrumb-item:not(:last-child):after {
+            content: "›";
+            margin-left: 10px;
+            color: #E6A23C; /* 剑门黄 */
+        }
+        
+        .breadcrumb-item:last-child {
+            color: #E6A23C; /* 剑门黄 */
+            font-weight: bold;
+        }
+
+        /* 调整active链接样式 */
+        .navigation-items a.active {
+            color: #3A7D44 !important; /* 翠竹绿 */
+            font-weight: bold;
+        }
+        
+        /* 导航链接悬停效果 */
+        .navigation-items a:hover {
+            color: #E6A23C !important; /* 剑门黄 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-container">
+        <header>
+            <a href="index.html" class="brand">川魂匠心</a>
+            <div class="menu-btn"></div>
+            <div class="navigation">
+                <div class="navigation-items">
+                    <a href="index.html">序章·川魂启程</a>
+                    <a href="main.html" class="active">第一篇章·生生不息</a>
+                    <a href="shida_html/one.html">第二篇章·生态川境</a>
+                    <a href="page2.html">第三篇章·光明川流</a>
+                    <a href="last2.html">第四篇章·云词政策</a>
+                </div>
+            </div>
+        </header>
+    </div>
+    
+    <div class="button-container">
+        <button id="treemapBtn" class="switch-button active" title="切换到矩形树图">矩形树图</button>
+        <button id="treeBtn" class="switch-button" title="切换到树形图">树形图</button>
+    </div>
+    <div id="breadcrumb" class="breadcrumb-container">
+        <span class="breadcrumb-item">四川文化</span>
+    </div>
+    <div id="chart" class="chart-container" role="img" aria-label="四川文化可视化图表"></div>
+    
+    <!-- 弹窗 -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeModal">&times;</span>
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">标题</h2>
+            </div>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modalImage" src="" alt="文化图片">
+                </div>
+                <div class="modal-description" id="modalDescription">
+                    <p>加载中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/sichuan_culture.js"></script>
+    <script>
+        // 初始化图表
+        var myChart = echarts.init(document.getElementById('chart'));
+        var currentLevel = 0;
+        var drillHistory = [];
+        var currentChartType = 'treemap'; // 默认为矩形树图
+        
+        // 定义第三级的背景图片
+        const thirdLevelBackgrounds = {
+            // 川菜下的子类
+            '火锅': './img/foods/hotpot.jpg',
+            '川盐': './img/foods/salt.jpg',
+            '川酒': './img/foods/wine.jpg',
+            '川茶': './img/foods/tea.jpg',
+            // 物产与贸易下的子类
+            '小米、黄米': './img/foods/rice.jpg',
+            '五粮液、泸州老窖': './img/foods/liquor.jpg',
+            '郫县豆瓣': './img/foods/douban.jpg',
+            // 三星堆文明下的子类
+            '青铜大立人像': './img/history/bronze_human.jpg',
+            '青铜面具': './img/history/bronze_mask.jpg',
+            '青铜神树': './img/history/bronze_tree.jpg',
+            '金面具': './img/history/gold_mask.jpg',
+            // 移民与开发下的子类
+            '都江堰水利工程': './img/history/dujiangyan.jpg',
+            // 历史名人下的子类
+            '李冰（都江堰）': './img/arts/libing.jpg',
+            '诸葛亮（蜀汉）': './img/arts/zhugeliang.jpg',
+            '李白（蜀籍诗仙）': './img/arts/libai.jpg',
+            '杜甫（草堂岁月）': './img/arts/dufu.jpg',
+            '薛涛（女诗人）': './img/arts/xuetao.jpg',
+            '苏轼（巴蜀情怀）': './img/arts/sushi.jpg',
+            // 民间艺术下的子类
+            '川剧': './img/arts/chuanju.jpg',
+            '蜀锦': './img/arts/shujin.jpg',
+            // 现代文化符号下的子类
+            '巴适！': '#C83E3D', // 蜀锦红
+            '安逸！': '#3A7D44', // 翠竹绿
+            '要得！': '#3D6F8D', // 青城蓝
+            '雄起！': '#E6A23C', // 剑门黄
+        };
+        
+        // 定义节点简介信息
+        const nodeDescriptions = {
+            '火锅': '四川火锅，源于重庆江湖菜，以麻辣著称，用料广泛，形式多样。其独特的"麻辣"风味是由花椒和辣椒结合而成，让人吃后口舌生香，回味无穷。如今已成为最具代表性的中国美食之一，享誉全球。',
+            '川盐': '四川自古为"盐都"，自秦汉起就有开采井盐的历史。川盐生产方式以井盐为主，尤以"燎炉制盐"最为有名。川盐不仅维系了古代四川经济命脉，也形成了独特的盐文化，对四川的经济社会发展产生了深远影响。',
+            '川酒': '四川白酒历史悠久，风格独特，以浓香型为主。代表酒企有五粮液、泸州老窖等。川酒采用传统酿造工艺，讲究"12987"工序，成就了其独特的"香、醇、甜、净、酱"风格特点，在中国白酒中占有重要地位。',
+            '川茶': '四川茶文化源远流长，是世界茶文化发源地之一。川茶品种丰富，如雅安藏茶、峨眉竹叶青等各具特色。蒙顶山更有"茶祖"之称，据传神农氏在此尝百草，发现了茶的功效，被尊为"茶祖"。',
+            '小米、黄米': '四川传统粮食作物，自古以来就是川西平原重要的农作物。四川小米香糯可口，营养丰富，常用于制作粥品和甜点。黄米则质地细腻，是制作传统小吃如黄米粑粑的主要原料。',
+            '五粮液、泸州老窖': '四川两大名酒企业，均有数百年历史。五粮液以"香、甜、净、柔、和、雅、醇"七种风味著称；泸州老窖则以"酱香浓郁、绵甜软洌、香味协调、尾净悠长"的特点闻名。二者均代表了中国白酒的最高水平。',
+            '郫县豆瓣': '四川传统名特产品，历史可追溯至明代。采用当地优质蚕豆、辣椒等原料，经过精心发酵制成。其色泽红亮，气味浓郁，辣中带香，咸鲜适中，被誉为"川菜之魂"，是川菜调味的重要基础。',
+            '青铜大立人像': '三星堆出土的重要文物，高约2.6米，为中国目前出土最高、最完整的青铜人像。其造型奇特，神情庄严，身着长袍，双手前伸，具有浓厚的宗教礼仪色彩，展现了古蜀国高超的青铜铸造工艺。',
+            '青铜面具': '三星堆文化的代表性文物，造型独特，有宽额、大耳、圆眼和方形嘴等特征。这些面具可能代表古蜀国的神灵或祭祀对象，表现出与中原地区截然不同的审美观念，见证了古蜀文化的独特面貌。',
+            '青铜神树': '三星堆出土的神秘文物，高3.96米，树干上栖息着九只神鸟，底部有龙形盘踞。被认为可能是古蜀人通向天界的媒介或生命树的象征，体现了古蜀人的宇宙观和生命观，具有重要的宗教祭祀意义。',
+            '金面具': '三星堆出土的稀世珍宝，由黄金打造，造型奇特。面具有夸张的五官特征，可能是古蜀国贵族或神灵的象征。其精湛的工艺和丰富的象征意义，充分展示了古蜀国高度发达的冶金技术和独特的审美风格。',
+            '都江堰水利工程': '始建于公元前256年的古代水利工程，由李冰父子主持修建。其无坝引水的设计理念和分水、排沙、控流三大功能，展现了古代中国人民的智慧。作为世界上年代最久、唯一保持功能的大型水利工程，至今仍发挥着重要作用。',
+            '李冰（都江堰）': '秦国蜀郡太守，都江堰的设计者和修建者。他提出"深淘滩，低作堰"的治水理念，巧妙利用自然条件，创造了无坝引水的水利奇迹。其卓越的工程智慧和造福百姓的精神，使他成为中国古代杰出的水利工程专家和治蜀名臣。',
+            '诸葛亮（蜀汉）': '三国时期蜀汉丞相，政治家、军事家、发明家。他鞠躬尽瘁，死而后已，在位期间励精图治，为蜀汉政权的稳定和发展做出了巨大贡献。其智慧与忠诚的形象深入人心，成为中国文化中智慧和忠义的象征。',
+            '李白（蜀籍诗仙）': '唐代伟大诗人，生于绵州（今四川江油）。其诗歌想象丰富，语言豪放，意境雄浑，风格独特，被誉为"诗仙"。代表作《蜀道难》《将进酒》等不仅展现了他的文学才华，也反映了他对家乡四川的深厚感情。',
+            '杜甫（草堂岁月）': '唐代伟大诗人，晚年在成都建草堂居住，创作了大量反映时代和人民疾苦的现实主义诗作。其诗歌思想深刻，艺术精湛，被称为"诗圣"。成都杜甫草堂已成为中国重要的文化旅游胜地和纪念场所。',
+            '薛涛（女诗人）': '唐代著名女诗人，成都人。其诗作清新自然，风格婉约含蓄，特别擅长描写闺阁情思和自然景观。她还发明了"薛涛笺"，对后世文房制品产生了深远影响，成为中国古代杰出的女性文化代表。',
+            '苏轼（巴蜀情怀）': '北宋文学家、书法家、画家，眉山人。一生多次往来于四川，对故乡有深厚感情。其文学成就全面，诗词歌赋、散文小品无不精擅，被誉为"文坛泰斗"。其开朗旷达的人生态度和深厚的人文精神影响了后世千年。',
+            '川剧': '四川汉族地方戏曲，形成于清代，融合了高腔、昆曲、胡琴、弹戏、梆子五种声腔。其表演艺术以"变脸"、"吐火"、"抖翎"等绝活著称，被誉为"中国国粹"。川剧题材广泛，表演生动，在中国戏曲中占有重要地位。',
+            '蜀锦': '四川传统丝织品，有2000多年历史，以精美华丽的花纹和绚丽多彩的色彩著称。历史上"蜀中丝织甲天下"，蜀锦更是"衣被天子诸侯"的贡品。其复杂的织造工艺和独特的艺术风格，体现了中国古代丝织技术的最高水平。',
+            '巴适！': '四川方言，表示"舒适、合适、好"的意思。作为四川人日常交流中最常用的词汇之一，它既是对事物的评价，也表达了四川人悠闲自得、知足常乐的生活态度，已成为四川文化的一个鲜明标志。',
+            '安逸！': '四川方言，意为"舒适、安闲"。体现了四川人追求轻松自在生活方式的价值观。这种"安逸文化"反映了巴蜀民众乐观豁达、悠然自得的精神面貌，也是当代四川文化精神的重要表现。',
+            '要得！': '四川方言，表示"可以、行"的意思。这一简短有力的表达方式反映了四川人洒脱大方、干脆利落的性格特点，在全国范围内广为人知，成为四川人活泼开朗个性的生动写照。',
+            '雄起！': '四川方言，原意是"振作、加油"，现已演变为四川人表达激励和鼓舞的口号。特别在体育赛事和集体活动中，常被用来提振士气。这一充满力量感的方言词汇，展现了四川人积极向上的精神风貌。'
+        };
+
+        // 矩形树图配置
+        function getTreemapOption(data, level) {
+            // 检查数据有效性
+            if (!Array.isArray(data) || data.length === 0) {
+                console.error('无效数据格式:', data);
+                return null;
+            }
+            
+            // 先使数据按value值排序
+            data.sort(function(a, b) {
+                return b.value - a.value;
+            });
+
+            // 处理数据，根据层级添加背景图片或纯色背景
+            function processData(data) {
+                if (!Array.isArray(data)) {
+                    console.error('无效数据格式:', data);
+                    return [];
+                }
+                
+                return data.map(item => {
+                    if (!item) {
+                        console.error('无效项目:', item);
+                        return null;
+                    }
+                    
+                    const newItem = {...item};
+                    
+                    // 判断是否是叶子节点（最小单元节点）
+                    const isLeafNode = !item.children || !Array.isArray(item.children) || item.children.length === 0;
+                    
+                    // 判断当前应用哪种背景
+                    if (isLeafNode) {
+                        // 如果是叶子节点，检查是否有背景图片
+                        if (thirdLevelBackgrounds[item.name]) {
+                            if (['巴适！', '安逸！', '要得！', '雄起！'].includes(item.name)) {
+                                // 现代文化符号使用纯色背景
+                                newItem.itemStyle = {
+                                    borderWidth: 3,
+                                    gapWidth: 4,
+                                    borderColor: '#fff',
+                                    borderRadius: 4,
+                                    color: thirdLevelBackgrounds[item.name]
+                                };
+                            } else {
+                                // 使用ECharts原生方式设置背景图片
+                                newItem.itemStyle = {
+                                    borderWidth: 3,
+                                    gapWidth: 4,
+                                    borderColor: '#fff',
+                                    borderRadius: 8,
+                                    color: {
+                                        image: thirdLevelBackgrounds[item.name],
+                                        repeat: 'no-repeat',
+                                        x: 'center',
+                                        y: 'center',
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover'  // 添加objectFit属性确保图片填充
+                                    }
+                                };
+                                
+                                // 预设固定值，为图片显示提供更合适的矩形块大小
+                                if (item.value < 500) {
+                                    // 增加小块的权重以避免图片太小
+                                    newItem.value = Math.max(500, item.value);
+                                }
+
+                                // 添加图片加载完成事件以自适应调整
+                                newItem.emphasis = {
+                                    itemStyle: {
+                                        borderWidth: 5,
+                                        shadowBlur: 10,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                };
+                            }
+                            
+                            // 为叶子节点添加特殊标签样式，确保文字清晰可见
+                            newItem.label = {
+                                show: true,
+                                position: 'inside',
+                                formatter: item.name,
+                                fontSize: 16,
+                                fontWeight: 'bold',
+                                backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                                borderRadius: 4,
+                                padding: [6, 8],
+                                color: '#fff',
+                                width: '90%',
+                                overflow: 'break'
+                            };
+                        } else {
+                            // 没有定义背景的项目使用默认颜色
+                            const colorMap = [
+                                '#4CAF50', '#2196F3', '#FF5722', '#9C27B0',
+                                '#3F51B5', '#00BCD4', '#FFC107', '#795548',
+                                '#607D8B', '#E91E63', '#673AB7', '#CDDC39'
+                            ];
+                            
+                            const colorIndex = data.indexOf(item) % colorMap.length;
+                            
+                            newItem.itemStyle = {
+                                borderWidth: 3,
+                                gapWidth: 4,
+                                borderColor: '#fff',
+                                borderRadius: 4,
+                                color: colorMap[colorIndex]
+                            };
+                            
+                            // 为没有背景图的叶子节点也添加标签样式
+                            newItem.label = {
+                                show: true,
+                                position: 'inside',
+                                formatter: item.name,
+                                fontSize: 14,
+                                fontWeight: 'bold',
+                                color: '#fff'
+                            };
+                            
+                            // 添加鼠标悬停效果
+                            newItem.emphasis = {
+                                itemStyle: {
+                                    borderWidth: 4,
+                                    shadowBlur: 10,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            };
+                        }
+                    } else {
+                        // 非叶子节点使用纯色背景
+                        const colorMap = [
+                            '#4CAF50', '#2196F3', '#FF5722', '#9C27B0',
+                            '#3F51B5', '#00BCD4', '#FFC107', '#795548',
+                            '#607D8B', '#E91E63', '#673AB7', '#CDDC39'
+                        ];
+                        
+                        const colorIndex = data.indexOf(item) % colorMap.length;
+                        
+                        newItem.itemStyle = {
+                            borderWidth: level === 0 ? 2 : 1,
+                            gapWidth: level === 0 ? 4 : 2,
+                            borderColor: '#fff',
+                            borderRadius: 4,
+                            color: colorMap[colorIndex]
+                        };
+
+                        // 为所有节点设置标题栏样式
+                        newItem.label = {
+                            show: true,
+                            formatter: function(params) {
+                                // 顶部显示标题，底部显示值
+                                return [
+                                    params.name
+                                ].join('\n');
+                            },
+                            rich: {
+                                title: {
+                                    fontSize: 16,
+                                    fontWeight: 'bold',
+                                    color: '#fff',
+                                    backgroundColor: 'rgba(0,0,0,0.6)',
+                                    width: '100%',
+                                    height: 30,
+                                    align: 'center',
+                                    verticalAlign: 'middle',
+                                    padding: [5, 10],
+                                    borderRadius: [4, 4, 0, 0]
+                                }
+                            },
+                            position: 'top',
+                            distance: 0,
+                            width: '100%',
+                            height: 30,
+                            overflow: 'truncate'
+                        };
+
+                        // 为非叶子节点添加悬停效果
+                        newItem.emphasis = {
+                            itemStyle: {
+                                borderWidth: level === 0 ? 4 : 3,
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        };
+                    }
+                    
+                    // 递归处理子节点
+                    if (item.children && Array.isArray(item.children)) {
+                        newItem.children = processData(item.children);
+                    }
+                    
+                    return newItem;
+                }).filter(Boolean); // 过滤掉无效的项
+            }
+
+            const processedData = processData(data);
+            if (!processedData.length) {
+                console.error('处理后无有效数据');
+                return null;
+            }
+
+            return {
+                tooltip: {
+                    formatter: function (info) {
+                        const name = info.name;
+                        return [
+                            '<div style="font-weight:bold;margin-bottom:5px;font-size:14px;">' + name + '</div>'
+                        ].join('');
+                    }
+                },
+                series: [{
+                    type: 'treemap',
+                    data: processedData,
+                    width: '95%',
+                    height: '90%',
+                    top: '3%',
+                    roam: false,
+                    nodeClick: 'zoomToNode',
+                    visibleMin: 1,
+                    animation: true,
+                    animationDuration: 500,
+                    animationEasing: 'cubicOut',
+                    aspectRatio: 1,  // 添加此参数使矩形块尽量接近正方形
+                    squareRatio: 0.5,  // 添加此参数控制矩形块的宽高比
+                    breadcrumb: {
+                        show: false  // 隐藏面包屑导航
+                    },
+                    // 显示父节点标签配置
+                    showParentLabel: true,
+                    upperLabel: {
+                        // 设置父标签样式
+                        show: true,
+                        height: 30,
+                        color: '#fff',
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                        padding: [5, 10],
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    levels: [
+                        {
+                            itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 2,
+                                gapWidth: 4,
+                                borderRadius: 4
+                            },
+                            // 第一级样式，显示父节点标签
+                            upperLabel: {
+                                show: true,
+                                height: 30,
+                                fontSize: 16
+                            }
+                        },
+                        {
+                            itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 1,
+                                gapWidth: 2,
+                                borderRadius: 2
+                            },
+                            // 第二级样式，显示父节点标签
+                            upperLabel: {
+                                show: true,
+                                height: 25,
+                                fontSize: 14
+                            }
+                        },
+                        {
+                            itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 1,
+                                gapWidth: 1,
+                                borderRadius: 2
+                            },
+                            // 第三级样式，显示父节点标签
+                            upperLabel: {
+                                show: true,
+                                height: 20,
+                                fontSize: 12
+                            }
+                        }
+                    ],
+                    // 标准标签样式
+                        label: {
+                            show: true,
+                        position: 'inside',
+                        formatter: '{b}',
+                        fontSize: 14,
+                        color: '#fff'
+                    }
+                }]
+            };
+        }
+
+        // 普通树形图配置
+        function getTreeOption(data) {
+            return {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function (info) {
+                        const value = info.value || '';
+                        const name = info.name;
+                        return [
+                            '<div style="font-weight:bold;margin-bottom:5px;font-size:14px;">' + name + '</div>',
+                            value ? '值: ' + value : ''
+                        ].join('');
+                    }
+                },
+                series: [{
+                    type: 'tree',
+                    data: [sichuanCultureData], // 注意这里传入的是数组
+                    top: '5%',
+                    bottom: '5%',
+                    left: '10%',
+                    right: '20%',
+                    symbolSize: 10,
+                    initialTreeDepth: 2, // 默认展开两层
+                    label: {
+                        position: 'left',
+                        verticalAlign: 'middle',
+                        align: 'right',
+                        fontSize: 14,
+                        color: '#fff'
+                    },
+                    leaves: {
+                        label: {
+                            position: 'right',
+                            verticalAlign: 'middle',
+                            align: 'left'
+                        }
+                    },
+                    emphasis: {
+                        focus: 'descendant'
+                    },
+                    expandAndCollapse: true,
+                    animationDuration: 550,
+                    animationDurationUpdate: 750
+                }]
+            };
+        }
+
+        // 获取当前路径文本用于显示
+        function getCurrentPathText() {
+            // 只显示当前根节点标题
+            if (currentLevel === 0) {
+                return '四川文化';
+            } else if (drillHistory.length > 0) {
+                // 获取上一级的名称
+                const currentData = drillHistory[drillHistory.length - 1];
+                if (currentData && currentData.length > 0 && currentData[0].parent) {
+                    return currentData[0].parent;
+                }
+            }
+            return '';
+        }
+
+        // 修改数据预处理，添加父节点信息
+        function enhanceData(data, parentName = '') {
+            if (!Array.isArray(data)) return data;
+            
+            return data.map(item => {
+                if (item) {
+                    // 添加父节点信息
+                    item.parent = parentName;
+                    
+                    // 递归处理子节点
+                    if (item.children && Array.isArray(item.children)) {
+                        item.children = enhanceData(item.children, item.name);
+                    }
+                }
+                return item;
+            });
+        }
+
+        // 处理图片比例和显示
+        function preloadImages() {
+            // 创建图片预加载数组
+            const preloadPromises = [];
+            const imageInfo = {};
+            
+            // 遍历所有背景图片
+            for (let name in thirdLevelBackgrounds) {
+                const src = thirdLevelBackgrounds[name];
+                // 排除纯色背景
+                if (src.startsWith('#')) continue;
+                
+                const promise = new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        // 记录图片尺寸
+                        imageInfo[name] = {
+                            width: img.width,
+                            height: img.height,
+                            ratio: img.width / img.height,
+                            size: img.width * img.height // 记录图片总像素数
+                        };
+                        resolve();
+                    };
+                    img.onerror = function() {
+                        console.warn('图片加载失败:', src);
+                        resolve();
+                    };
+                    img.src = src;
+                });
+                
+                preloadPromises.push(promise);
+            }
+            
+            // 所有图片加载完成后更新图表
+            Promise.all(preloadPromises).then(() => {
+                console.log('图片尺寸信息:', imageInfo);
+                // 存储图片信息供后续使用
+                window.imageInfo = imageInfo;
+                
+                // 图片加载完成后重新初始化图表，应用图片尺寸调整
+                initChart();
+            });
+        }
+
+        // 根据图片尺寸调整数据值
+        function adjustDataByImageSize(data) {
+            if (!Array.isArray(data) || !window.imageInfo) return data;
+            
+            return data.map(item => {
+                if (!item) return null;
+                
+                const newItem = {...item};
+                
+                // 检查是否有对应的图片并且不是颜色值
+                if (thirdLevelBackgrounds[item.name] && 
+                    !thirdLevelBackgrounds[item.name].startsWith('#') && 
+                    window.imageInfo[item.name]) {
+                    
+                    const imgInfo = window.imageInfo[item.name];
+                    
+                    // 基础值
+                    let baseValue = item.value || 1;
+                    
+                    // 根据宽高比调整的更精确的公式
+                    const ratioFactor = Math.pow(imgInfo.ratio > 1 ? imgInfo.ratio : 1/imgInfo.ratio, 0.8);
+                    
+                    // 根据图片尺寸调整的因子 (归一化处理)
+                    const sizeFactor = Math.sqrt(imgInfo.size) / 500; // 假设500像素是标准高度
+                    
+                    // 综合调整因子
+                    const adjustFactor = Math.max(1, Math.min(ratioFactor * sizeFactor, 2.5));
+                    
+                    // 应用调整
+                    newItem.value = Math.max(500, baseValue * adjustFactor);
+                    
+                    console.log(`调整 ${item.name} 的值: ${baseValue} -> ${newItem.value} (比例: ${imgInfo.ratio.toFixed(2)}, 大小因子: ${sizeFactor.toFixed(2)})`);
+                }
+                
+                // 递归处理子节点
+                if (item.children && Array.isArray(item.children)) {
+                    newItem.children = adjustDataByImageSize(item.children);
+                }
+                
+                return newItem;
+            }).filter(Boolean);
+        }
+
+        // 设置初始图表为矩形树图
+        function initChart() {
+            if (!sichuanCultureData || !sichuanCultureData.children) {
+                console.error('无效数据结构:', sichuanCultureData);
+                return;
+            }
+            
+            console.log('初始化图表...');
+            // 增强原始数据，添加父节点信息
+            let enhancedData = enhanceData(sichuanCultureData.children, sichuanCultureData.name);
+            
+            // 如果图片信息已加载，则应用图片尺寸调整
+            if (window.imageInfo) {
+                enhancedData = adjustDataByImageSize(enhancedData);
+            }
+            
+            // 根据当前图表类型设置相应的配置
+            if (currentChartType === 'treemap') {
+                const option = getTreemapOption(enhancedData, 0);
+                if (option) {
+                    myChart.setOption(option);
+                    console.log('矩形树图初始化完成');
+                    showTip('点击矩形块进入下一级分类，图片将根据原始比例显示');
+                }
+            } else {
+                const option = getTreeOption(enhancedData);
+                myChart.setOption(option);
+                console.log('树形图初始化完成');
+                showTip('树形图初始化完成，点击节点可展开或收起');
+            }
+        }
+
+        // 添加提示信息
+        function showTip(message, duration = 3000) {
+            var tip = document.createElement('div');
+            tip.className = 'chart-tip';
+            tip.innerText = message;
+            tip.style.position = 'fixed';
+            tip.style.bottom = '20px';
+            tip.style.left = '50%';
+            tip.style.transform = 'translateX(-50%)';
+            tip.style.backgroundColor = 'rgba(50, 50, 50, 0.8)';
+            tip.style.color = '#fff';
+            tip.style.padding = '10px 20px';
+            tip.style.borderRadius = '5px';
+            tip.style.zIndex = 999;
+            tip.style.fontSize = '14px';
+            tip.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
+            document.body.appendChild(tip);
+            
+            setTimeout(function() {
+                tip.style.opacity = 0;
+                tip.style.transition = 'opacity 0.5s';
+                setTimeout(function() {
+                    document.body.removeChild(tip);
+                }, 500);
+            }, duration);
+        }
+
+        // 更新面包屑导航
+        function updateBreadcrumb() {
+            const breadcrumbContainer = document.getElementById('breadcrumb');
+            breadcrumbContainer.innerHTML = '';
+            
+            // 添加根节点
+            const rootItem = document.createElement('span');
+            rootItem.className = 'breadcrumb-item';
+            rootItem.textContent = '四川文化';
+            breadcrumbContainer.appendChild(rootItem);
+            
+            // 添加当前路径
+            if (drillHistory.length > 0) {
+                for (let i = 0; i < drillHistory.length; i++) {
+                    const data = drillHistory[i];
+                    if (data && data.length > 0 && data[0].parent) {
+                        const separator = document.createElement('span');
+                        separator.className = 'breadcrumb-item';
+                        separator.textContent = data[0].parent;
+                        breadcrumbContainer.appendChild(separator);
+                    }
+                }
+            }
+        }
+        
+        // 修改图表点击事件
+        myChart.on('click', function(params) {
+            console.log('点击事件:', params.data ? params.data.name : '未知项目');
+            
+            // 检查是否为树形图模式并点击了叶子节点
+            if (currentChartType === 'tree' && params.componentType === 'series') {
+                // 检查是否为叶子节点 (没有children)
+                if (params.data && !params.data.children) {
+                    const nodeName = params.data.name;
+                    
+                    // 检查是否有对应的图片 (非颜色值)
+                    if (thirdLevelBackgrounds[nodeName] && !thirdLevelBackgrounds[nodeName].startsWith('#')) {
+                        console.log('显示弹窗，节点:', nodeName);
+                        
+                        // 获取图片路径
+                        const imgPath = thirdLevelBackgrounds[nodeName];
+                        
+                        // 获取节点描述
+                        const description = nodeDescriptions[nodeName] || '暂无描述信息';
+                        
+                        // 设置弹窗内容
+                        document.getElementById('modalTitle').textContent = nodeName;
+                        document.getElementById('modalImage').src = imgPath;
+                        document.getElementById('modalDescription').innerHTML = '<p>' + description + '</p>';
+                        
+                        // 显示弹窗
+                        document.getElementById('imageModal').style.display = 'block';
+                    }
+                    else {
+                        showTip('该节点没有相关图片信息');
+                    }
+                }
+            }
+            // 现有的矩形树图点击逻辑
+            else if (params.componentType === 'series' && params.seriesType === 'treemap') {
+                if (params.data && params.data.children) {
+                    // 增强数据，添加父节点信息
+                    let enhancedChildren = enhanceData(params.data.children, params.data.name);
+                    
+                    // 应用图片尺寸调整
+                    if (window.imageInfo) {
+                        enhancedChildren = adjustDataByImageSize(enhancedChildren);
+                    }
+                    
+                    drillHistory.push(enhancedChildren);
+                    currentLevel++;
+                    console.log('进入下一级，当前层级:', currentLevel, '当前节点:', params.data.name);
+                    
+                    const option = getTreemapOption(enhancedChildren, currentLevel);
+                    if (option) {
+                        // 优化显示设置，确保图片直接显示
+                        option.animation = false; // 禁用动画，避免加载延迟
+                        myChart.setOption(option, true); // 使用true强制清除之前的选项
+                        
+                        // 更新面包屑导航
+                        updateBreadcrumb();
+                        
+                        // 强制更新布局
+                        setTimeout(function() {
+                            myChart.resize();
+                        }, 50);
+                        
+                        if (currentLevel === 2) {
+                            showTip('第三级分类，可以看到背景图片或颜色');
+                        }
+                    }
+                } else {
+                    console.log('没有子项目');
+                }
+            }
+        });
+        
+        // 修改按钮切换事件
+        document.getElementById('treeBtn').addEventListener('click', function() {
+            console.log('切换到树形图模式');
+            currentChartType = 'tree';
+            const option = getTreeOption(sichuanCultureData.children);
+            myChart.setOption(option, true);
+            this.classList.add('active');
+            document.getElementById('treemapBtn').classList.remove('active');
+            currentLevel = 0;
+            drillHistory = [];
+            updateBreadcrumb(); // 更新面包屑导航
+            showTip('已切换到树形图模式，可通过点击节点展开或收起');
+        });
+
+        document.getElementById('treemapBtn').addEventListener('click', function() {
+            console.log('切换到矩形树图模式');
+            currentChartType = 'treemap';
+            const enhancedData = enhanceData(sichuanCultureData.children, sichuanCultureData.name);
+            const option = getTreemapOption(enhancedData, 0);
+            if (option) {
+                myChart.setOption(option, true);
+            this.classList.add('active');
+            document.getElementById('treeBtn').classList.remove('active');
+            currentLevel = 0;
+            drillHistory = [];
+                updateBreadcrumb(); // 更新面包屑导航
+                showTip('已切换到矩形树图模式，点击矩形可深入了解该类别');
+            }
+        });
+        
+        // 初始化图表时预加载图片
+        window.addEventListener('load', function() {
+            console.log('页面加载完成，预加载图片');
+            // 先执行预加载，然后在预加载完成后会调用initChart
+            preloadImages();
+            
+            // 确保切换按钮的活跃状态与默认图表类型一致
+            document.getElementById('treemapBtn').classList.add('active');
+            document.getElementById('treeBtn').classList.remove('active');
+            
+            // 初始化面包屑导航
+            updateBreadcrumb();
+            
+            showTip('正在加载图片，请稍候...');
+        });
+
+        // 弹窗关闭按钮事件
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('imageModal').style.display = 'none';
+        });
+        
+        // 点击弹窗外区域关闭弹窗
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // 响应式调整
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    </script>
+</body>
+
+</html>

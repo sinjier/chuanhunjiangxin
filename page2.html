@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/echarts.min.js"></script>
+    <script type="text/javascript" src="js/china.js"></script>
+    <title>水电站</title>
+    <link rel="stylesheet" href="CSS/page2.css">
+    <link rel="stylesheet" type="text/css" href="CSS/index.css">
+    <link rel="stylesheet" href="CSS/style1.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url('img/y.jpg') no-repeat center center fixed;
+            background-size: cover;
+            padding-top: 98px; /* 调整内容区域的上边距，为两个导航栏留出空间 */
+        }
+
+        .map-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            height: calc(100vh - 150px);
+            padding: 20px;
+            background: url('img/y.jpg') no-repeat center center;
+            background-size: cover;
+        }
+        
+        .map-left, .map-right {
+            position: relative; 
+            height: 100%;
+            border: 1px solid #1e90ff;
+            padding: 10px;
+            background: url('img/y.jpg') no-repeat center center;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        .map-left::before, .map-right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 0;
+        }
+        
+        .map-left {
+            flex: 1;
+            min-width: 300px;
+            position: relative; /* 确保相对定位 */
+        }
+
+        .map-right {
+            flex: 2;
+            min-width: 600px;
+        }
+        
+        #chinaMap, #solarMap, #sichuanMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tooltip {
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border: 1px solid #1e90ff;
+            color: #fff;
+        }
+
+        .title {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px; /* 增大地图标题字体 */
+            color: #fff;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 10;
+        }
+
+        /* 导航栏容器样式 */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        /* 主导航栏样式 */
+        .main-nav {
+            background-color: rgba(44, 48, 51, 0.85);
+            border-bottom: 2px solid rgba(58, 125, 68, 0.5);
+            padding: 15px 5%;
+            height: 68px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 次导航栏样式 */
+        .sub-nav {
+            background-color: rgba(44, 48, 51, 0.85);
+            border-bottom: 2px solid rgba(58, 125, 68, 0.5);
+            padding: 5px 5%;
+            height: 30px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* 品牌名称样式 */
+        .brand {
+            color: #fff;
+            font-size: 22px; /* 增大品牌名称字体 */
+            font-weight: bold;
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        /* 导航链接容器样式 */
+        .navigation {
+            display: flex;
+            align-items: center;
+        }
+
+        .navigation-items, .navigation-items2 {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* 导航链接样式 */
+        .navigation-items a, .navigation-items2 a {
+            font-size: 18px !important; /* 增大导航链接字体 */
+            color: #fff;
+            transition: color 0.3s ease;
+            text-decoration: none;
+            padding: 5px 10px;
+        }
+
+        /* 导航链接悬停效果 */
+        .navigation-items a:hover, .navigation-items2 a:hover {
+            color: #E6A23C !important;
+        }
+
+        /* 激活的导航链接样式 */
+        .navigation-items a.active, .navigation-items2 a.active {
+            color: #3A7D44 !important;
+            font-weight: bold;
+        }
+
+        /* 地图容器样式 */
+        .map-container {
+            margin-top: 20px;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background-color: rgba(44, 48, 51, 0.95);
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #3A7D44;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 1000px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .close {
+            color: #E6A23C;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #fff;
+        }
+
+        #statisticsChart {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+        }
+
+        /* 按钮样式 */
+        .stats-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background-color: rgba(58, 125, 68, 0.8);
+            color: #fff;
+            border: 1px solid #3A7D44;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 16px; /* 增大按钮字体大小 */
+            transition: all 0.3s ease;
+        }
+
+        .stats-button:hover {
+            background-color: rgba(230, 162, 60, 0.8);
+            border-color: #E6A23C;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏容器 -->
+    <div class="nav-container">
+        <!-- 主导航栏 -->
+        <div class="main-nav">
+            <a href="index.html" class="brand">川魂匠心</a>
+            <div class="menu-btn"></div>
+            <div class="navigation">
+                <div class="navigation-items">
+                    <a href="index.html">序章·川魂启程</a>
+                    <a href="main.html">第一篇章·生生不息</a>
+                    <a href="shida_html/one.html">第二篇章·生态川境</a>
+                    <a href="page2.html" class="active">第三篇章·光明川流</a>
+                    <a href="last2.html">第四篇章·云词政策</a>
+                </div>
+            </div>
+        </div>
+        <!-- 次导航栏 -->
+        <div class="sub-nav">
+            <div class="navigation2">
+                <div class="navigation-items2">
+                    <a href="page2.html" class="active">水电站</a>
+                    <a href="page3.html">光伏发电站</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="mainbox">
+        <div class="map-container">
+            <div class="map-left">
+                <div class="title title-china">输电路线图</div>
+                <div id="chinaMap"></div>
+                <button class="stats-button" id="openStatsBtn">查看发电量统计</button>
+                <div style="position: absolute; left: 10px; bottom: 10px; color: #fff; font-size: 12px; z-index: 1000; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">审图号: GS(2021)6375号</div>
+            </div>
+            <div class="map-right">
+                <div class="title title-sichuan">水电站分布图</div>
+                <div id="sichuanMap"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计图弹窗 -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2 style="color: #E6A23C; text-align: center; margin-bottom: 20px; font-size: 24px;">2016-2024年四川省发电量及增速</h2>
+            <div id="statisticsChart"></div>
+        </div>
+    </div>
+
+    <script>
+        // 定义输电路线数据
+        const powerTransmissionRoutes = [
+            {
+                name: '向家坝输电路线',
+                coords: [
+                    [104.46028, 28.64083],  // 向家坝
+                    [106.5504, 29.5630],    // 重庆市
+                    [117.2830, 31.8612],    // 安徽省
+                    [118.7965, 32.0584]     // 江苏省
+                ]
+            },
+            {
+                name: '溪洛渡输电路线',
+                coords: [
+                    [103.64639, 28.26444],  // 溪洛渡
+                    [106.5504, 29.5630],    // 重庆市
+                    [104.0668, 30.5728],    // 四川省
+                    [114.3055, 30.5928],    // 湖北省
+                    [118.7965, 32.0584]     // 江苏省
+                ]
+            },
+            {
+                name: '锦屏二级输电路线',
+                coords: [
+                    [101.79083, 28.12833],  // 锦屏二级
+                    [106.7233, 26.5783],    // 贵州省
+                    [106.5504, 29.5630],    // 重庆市
+                    [114.3055, 30.5928],    // 湖北省
+                    [118.7965, 32.0584]     // 江苏省
+                ]
+            },
+            {
+                name: '白鹤滩输电路线',
+                coords: [
+                    [102.89972, 27.20361],  // 白鹤滩
+                    [104.0668, 30.5728],    // 四川省
+                    [106.5504, 29.5630],    // 重庆市
+                    [114.3055, 30.5928],    // 湖北省
+                    [118.7965, 32.0584]     // 江苏省
+                ]
+            },
+            {
+                name: '乌东德输电路线',
+                coords: [
+                    [102.63, 26.33389],     // 乌东德
+                    [102.8329, 24.8801],    // 云南省
+                    [104.0668, 30.5728],    // 四川省
+                    [106.5504, 29.5630],    // 重庆市
+                    [114.3055, 30.5928],    // 湖北省
+                    [118.7965, 32.0584]     // 江苏省
+                ]
+            },
+            {
+                name: '丹巴输电路线',
+                coords: [
+                    [101.86861, 31.01583],  // 丹巴
+                    [104.0668, 30.5728],    // 四川省
+                    [106.5504, 29.5630],    // 重庆市
+                    [114.3055, 30.5928],    // 湖北省
+                    [118.7965, 32.0584]     // 江苏省
+                ]
+            },
+            {
+                name: '双江口输电路线',
+                coords: [
+                    [101.93417, 31.79139],  // 双江口
+                    [104.0668, 30.5728],    // 四川省
+                    [106.5504, 29.5630],    // 重庆市
+                    [114.3055, 30.5928],    // 湖北省
+                    [118.7965, 32.0584]     // 江苏省
+                ]
+            }
+        ];
+
+        // 注册四川省地图数据
+        fetch('https://geo.datav.aliyun.com/areas_v3/bound/510000_full.json')
+            .then(response => response.json())
+            .then(geoJson => {
+                echarts.registerMap('sichuan', geoJson);
+                const maps = initMaps();
+                loadPowerStationData(maps);
+            })
+            .catch(error => {
+                console.error('加载地图数据失败:', error);
+            });
+
+        function initMaps() {
+            const chinaMap = echarts.init(document.getElementById('chinaMap'));
+            const sichuanMap = echarts.init(document.getElementById('sichuanMap'));
+            
+
+            // 中国地图配置
+            const chinaOption = {
+                background: 'url(img/y.jpg) no-repeat center center fixed',           
+                geo: {
+                        map: 'china',
+                        roam: false,  // 禁止地图拖动          
+                        zoom: 2.9,    // 调整缩放级别以匹配图片
+                        center: [110, 28],  // 调整中心点位置以匹配图片
+                        aspectScale: 0.85,  // 调整地图的长宽比
+                                label: { 
+                        show: true, 
+                        color: '#fff',
+                        fontSize: 12  // 增大地图标签字体大小
+                    },
+                    
+                    grid: {
+                                top: '10%',
+                                bottom: '10%'
+                            },        
+                    itemStyle: {
+                        areaColor: '#003',
+                        borderColor: '#0ff'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            areaColor: '#00f'
+                        }
+                    },
+                    regions: [
+                        // 保留需要显示的省份                       
+                        { name: '重庆市' },
+                        { name: '湖北省' },
+                        { name: '江苏省' },
+                        { name: '贵州省' },
+                        { name: '云南省' },
+                        { name: '安徽省' },
+                        { name: '四川省' },
+
+                        // 隐藏其他省份（包括所有的透明和隐藏标签）
+                        ...[
+                            '北京', '天津', '河北', '山西', '内蒙古', '辽宁', '吉林', '黑龙江',
+                            '陕西', '甘肃', '青海', '宁夏', '新疆', '西藏', '广西','广东','上海','湖南',
+                            '江西', '海南', '福建', '浙江', '山东',
+                            '河南', '香港', '澳门', '台湾','海南','南海诸岛'
+                        ].map(name => ({
+                            name,
+                            itemStyle: { opacity: 0 },  // 隐藏区域
+                            label: { show: false }      // 隐藏标签
+                        }))
+                    ],
+                    background: {
+                        image: 'img/y.jpg',  // 背景图片路径
+                        size: 'cover',  // 自动适应容器大小
+                        position: 'center'  // 背景居中显示
+                    }
+                },
+                series: [
+                    ...powerTransmissionRoutes.map(route => ({
+                        name: route.name,
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        zlevel: 2,
+                        effect: {
+                            show: true,
+                            period: 5,
+                            trailLength: 0.1,
+                            symbol: 'arrow',
+                            symbolSize: 6
+                        },
+                        lineStyle: {
+                            color: '#00ffff',
+                            width: 2,
+                            opacity: 0.6,
+                            curveness: 0.2
+                        },
+                        data: route.coords.slice(0, -1).map((point, i) => ({
+                            coords: [point, route.coords[i + 1]]
+                        }))
+                    })),
+                    {
+                        type: 'effectScatter',
+                        coordinateSystem: 'geo',
+                        zlevel: 2,
+                        rippleEffect: {
+                            brushType: 'stroke'
+                        },
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: '{b}',
+                            color: '#0ff',
+                            fontSize: 12
+                        },
+                        symbolSize: 10,
+                        itemStyle: {
+                            color: '#0ff'
+                        },
+                        data: [
+                            { name: '向家坝', value: [104.46028, 28.64083] },
+                            { name: '溪洛渡', value: [103.64639, 28.26444] },
+                            { name: '锦屏二级', value: [101.79083, 28.12833] },
+                            { name: '白鹤滩', value: [102.89972, 27.20361] },
+                            { name: '乌东德', value: [102.63, 26.33389] },
+                            { name: '丹巴', value: [101.86861, 31.01583] },
+                            { name: '双江口', value: [101.93417, 31.79139] },
+                            {name: '四川省', selected: true},
+                            {name: '云南省', selected: true},
+                            {name: '重庆市', selected: true},
+                            {name: '贵州省', selected: true},
+                            {name: '湖北省', selected: true},
+                            {name: '安徽省', selected: true},
+                            {name: '江苏省', selected: true}
+                            
+                        ]
+                    }
+                ]
+            }; 
+
+            
+        
+            // 四川地图配置
+            const sichuanOption = {
+                background: 'url(img/y.jpg) no-repeat center center fixed',  
+                geo: {
+                    map: 'sichuan',
+                    roam: false,
+                    zoom: 1.2,
+                    label: {
+                        show: true,
+                        color: '#fff',
+                        fontSize: 14
+                    },
+                    itemStyle: {
+                        areaColor: '#003',
+                        borderColor: '#0ff'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            areaColor: '#00f'
+                        }
+                    }
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        if (params.data) {
+                            const data = params.data;
+                            return `
+                                <div class="tooltip">
+                                    <h4>${data.name}</h4>
+                                    <p>流经河流：${data.流经河流}</p>
+                                    <p>投产年份：${data.投产年份}</p>
+                                    <p>总装机容量：${data.总装机容量}GW</p>
+                                    <p>机组数量：${data.机组数量}台</p>
+                                    <p>最大单机功率：${data.最大单机功率}GW</p>
+                                    <p>年发电量：${data.年发电量}TWh</p>
+                                    <p>坝高：${data.坝高}m</p>
+                                    <p>总库容：${data.总库容}km³</p>
+                                </div>
+                            `;
+                        }
+                        return params.name;
+                    }
+                },
+                series: [{
+                    type: 'effectScatter',
+                    coordinateSystem: 'geo',
+                    data: [],
+                    symbol: 'circle',
+                    symbolSize: 12,
+                    rippleEffect: {
+                        brushType: 'stroke'
+                    },
+                    itemStyle: {
+                        color: '#ff0',
+                        borderColor: '#ff0',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: true,
+                        position: 'right',
+                        formatter: '{b}',
+                        color: '#ff0',
+                        fontSize: 12
+                    }
+                }]
+            };
+
+            chinaMap.setOption(chinaOption);
+            sichuanMap.setOption(sichuanOption);
+
+            return { chinaMap, sichuanMap };
+        }
+
+       
+
+        // 注册四川省地图数据
+        fetch('https://geo.datav.aliyun.com/areas_v3/bound/510000_full.json')
+            .then(response => response.json())
+            .then(geoJson => {
+                echarts.registerMap('sichuan', geoJson);
+                const maps = initMaps();
+                loadHydropowerData(maps);
+            })
+            .catch(error => {
+                console.error('加载地图数据失败:', error);
+            });
+
+        function loadHydropowerData(maps) {
+            const data = [
+            {
+                "名称": "白鹤滩",
+                "流经河流": "金沙江",
+                "起点": "云南巧家",
+                "终点": "四川宁南",
+                "纬度": 27.20361,
+                "经度": 102.89972,
+                "投产年份": "2021－2022",
+                "总装机容量": 16,
+                "机组数量": 16,
+                "最大单机功率": 1,
+                "年发电量": 62.443,
+                "坝高": 289,
+                "总库容": 20.6
+            },
+            {
+                "名称": "溪洛渡",
+                "流经河流": "金沙江",
+                "起点": "云南永善",
+                "终点": "四川雷波",
+                "纬度": 28.26444,
+                "经度": 103.64639,
+                "投产年份": "2013－2014",
+                "总装机容量": 13.86,
+                "机组数量": 18,
+                "最大单机功率": 0.77,
+                "年发电量": 60.779,
+                "坝高": 285.5,
+                "总库容": 12.67
+            },
+            {
+                "名称": "乌东德",
+                "流经河流": "金沙江",
+                "起点": "云南禄劝",
+                "终点": "四川会东",
+                "纬度": 26.33389,
+                "经度": 102.63,
+                "投产年份": "2020－2021",
+                "总装机容量": 10.2,
+                "机组数量": 12,
+                "最大单机功率": 0.85,
+                "年发电量": 38.91,
+                "坝高": 270,
+                "总库容": 7.408
+            },
+            {
+                "名称": "向家坝",
+                "流经河流": "金沙江",
+                "起点": "云南水富",
+                "终点": "四川宜宾",
+                "纬度": 28.64083,
+                "经度": 104.46028,
+                "投产年份": "2012－2014",
+                "总装机容量": 7.75,
+                "机组数量": 11,
+                "最大单机功率": 0.8,
+                "年发电量": 33.722,
+                "坝高": 162,
+                "总库容": 5.163
+            },
+            {
+                "名称": "锦屏二级",
+                "流经河流": "雅砻江",
+                "起点": "四川木里",
+                "终点": "西昌",
+                "纬度": 28.12833,
+                "经度": 101.79083,
+                "投产年份": "2012－2014",
+                "总装机容量": 4.8,
+                "机组数量": 8,
+                "最大单机功率": 0.6,
+                "年发电量": 24.23,
+                "坝高": 34,
+                "总库容": 0.01401
+            },
+            {
+                "名称": "瀑布沟",
+                "流经河流": "大渡河",
+                "起点": "四川甘洛",
+                "终点": "汉源",
+                "纬度": 29.225,
+                "经度": 102.83111,
+                "投产年份": "2008－2010",
+                "总装机容量": 3.6,
+                "机组数量": 6,
+                "最大单机功率": 0.6,
+                "年发电量": 14.79,
+                "坝高": 186,
+                "总库容": 5.39
+            },
+            {
+                "名称": "锦屏一级",
+                "流经河流": "雅砻江",
+                "起点": "四川盐源",
+                "终点": "木里",
+                "纬度": 28.18028,
+                "经度": 101.63306,
+                "投产年份": "2013－2014",
+                "总装机容量": 3.6,
+                "机组数量": 6,
+                "最大单机功率": 0.6,
+                "年发电量": 16.62,
+                "坝高": 305,
+                "总库容": 7.76
+            },
+            {
+                "名称": "二滩",
+                "流经河流": "雅砻江",
+                "起点": "四川盐边",
+                "终点": "米易",
+                "纬度": 26.82083,
+                "经度": 101.78111,
+                "投产年份": "1998－1999",
+                "总装机容量": 3.3,
+                "机组数量": 6,
+                "最大单机功率": 0.55,
+                "年发电量": 17,
+                "坝高": 240,
+                "总库容": 5.8
+            },
+            {
+                "名称": "观音岩",
+                "流经河流": "金沙江",
+                "起点": "四川攀枝花",
+                "终点": "云南华坪",
+                "纬度": 26.52139,
+                "经度": 101.43778,
+                "投产年份": "2014－2016",
+                "总装机容量": 3,
+                "机组数量": 5,
+                "最大单机功率": 0.6,
+                "年发电量": 12.068,
+                "坝高": 159,
+                "总库容": 2.252
+            },
+            {
+                "名称": "两河口",
+                "流经河流": "雅砻江",
+                "起点": "四川雅江",
+                "纬度": 30.16278,
+                "经度": 101.01361,
+                "投产年份": "2021－2023",
+                "总装机容量": 3,
+                "机组数量": 6,
+                "最大单机功率": 0.5,
+                "年发电量": 11,
+                "坝高": 295,
+                "总库容": 10.154
+            },
+            {
+                "名称": "长河坝",
+                "流经河流": "大渡河",
+                "起点": "四川康定",
+                "纬度": 30.40361,
+                "经度": 102.11861,
+                "投产年份": "2017",
+                "总装机容量": 2.6,
+                "机组数量": 4,
+                "最大单机功率": 0.65,
+                "年发电量": 10.83,
+                "坝高": 240,
+                "总库容": 1.075
+            },
+            {
+                "名称": "大岗山",
+                "流经河流": "大渡河",
+                "起点": "四川石棉",
+                "纬度": 29.44861,
+                "经度": 102.21861,
+                "投产年份": "2015－2016",
+                "总装机容量": 2.6,
+                "机组数量": 4,
+                "最大单机功率": 0.65,
+                "年发电量": 11.45,
+                "坝高": 210,
+                "总库容": 0.742
+            },
+            {
+                "名称": "官地",
+                "流经河流": "雅砻江",
+                "起点": "四川盐源",
+                "终点": "西昌",
+                "纬度": 27.82139,
+                "经度": 101.88611,
+                "投产年份": "2012－2013",
+                "总装机容量": 2.4,
+                "机组数量": 4,
+                "最大单机功率": 0.6,
+                "年发电量": 11.776,
+                "坝高": 168,
+                "总库容": 0.76
+            },
+            {
+                "名称": "孟底沟",
+                "流经河流": "雅砻江",
+                "起点": "四川木里",
+                "终点": "九龙",
+                "纬度": 28.949686,
+                "经度": 101.160264,
+                "投产年份": "未投产",
+                "总装机容量": 2.4,
+                "机组数量": 4,
+                "最大单机功率": 0.6,
+                "年发电量": 10.405,
+                "坝高": 198,
+                "总库容": 0.885
+            },
+            {
+                "名称": "旭龙",
+                "流经河流": "金沙江",
+                "起点": "云南德钦",
+                "终点": "四川得荣",
+                "纬度": 28.813909,
+                "经度": 99.104294,
+                "投产年份": "未投产",
+                "总装机容量": 2.4,
+                "机组数量": 4,
+                "最大单机功率": 0.6,
+                "年发电量": 10.319,
+                "坝高": 213,
+                "总库容": 0.847
+            },
+            {
+                "名称": "叶巴滩",
+                "流经河流": "金沙江",
+                "起点": "西藏贡觉",
+                "终点": "四川白玉",
+                "纬度": 30.75222,
+                "经度": 98.95889,
+                "投产年份": "未投产",
+                "总装机容量": 2.24,
+                "机组数量": "",
+                "年发电量": 10.205,
+                "坝高": 217,
+                "总库容": 1.08
+            },
+            {
+                "名称": "双江口",
+                "流经河流": "大渡河",
+                "起点": "四川金川",
+                "终点": "马尔康",
+                "纬度": 31.79139,
+                "经度": 101.93417,
+                "投产年份": "未投产",
+                "总装机容量": 2,
+                "机组数量": 4,
+                "最大单机功率": 0.5,
+                "年发电量": 7.573,
+                "坝高": 314,
+                "总库容": 2.897
+            },
+            {
+                "名称": "拉哇",
+                "流经河流": "金沙江",
+                "起点": "西藏芒康",
+                "终点": "四川巴塘",
+                "纬度": 30.081047,
+                "经度": 99.044254,
+                "投产年份": "未投产",
+                "总装机容量": 2,
+                "机组数量": 4,
+                "最大单机功率": 0.5,
+                "年发电量": 8.364,
+                "坝高": 239,
+                "总库容": 2.467
+            },            
+            {
+                "名称": "猴子岩",
+                "流经河流": "大渡河",
+                "起点": "四川丹巴",
+                "纬度": 30.54611,
+                "经度": 102.05806,
+                "投产年份": 2017,
+                "总装机容量": 1.7,
+                "机组数量": 4,
+                "最大单机功率": 0.425,
+                "年发电量": 7.015,
+                "坝高": 223.5,
+                "总库容": 0.7042
+            },
+            {
+                "名称": "杨房沟",
+                "流经河流": "雅砻江",
+                "起点": "四川木里",
+                "纬度": 28.642736,
+                "经度": 101.20327,
+                "投产年份": 2021,
+                "总装机容量": 1.5,
+                "机组数量": 4,
+                "最大单机功率": 0.375,
+                "年发电量": 6.86,
+                "坝高": 155,
+                "总库容": 0.51248
+            },
+            {
+                "名称": "硬梁包",
+                "流经河流": "大渡河",
+                "起点": "四川泸定",
+                "纬度": 29.63528,
+                "经度": 102.1725,
+                "投产年份": "未投产",
+                "总装机容量": 1.3,
+                "年发电量": 5.228,
+                "坝高": 38,
+                "总库容": 0.02075
+            },
+            {
+                "名称": "苏洼龙",
+                "流经河流": "金沙江",
+                "起点": "西藏芒康",
+                "终点": "四川巴塘",
+                "纬度": 29.43667,
+                "经度": 99.05992,
+                "投产年份": 2022,
+                "总装机容量": 1.2,
+                "机组数量": 4,
+                "最大单机功率": 0.3,
+                "年发电量": 5.426,
+                "坝高": 112,
+                "总库容": 0.674
+            },
+            {
+                "名称": "丹巴",
+                "流经河流": "大金川",
+                "起点": "四川丹巴",
+                "纬度": 31.01583,
+                "经度": 101.86861,
+                "投产年份": "未投产",
+                "总装机容量": 1.1966,
+                "机组数量": "",
+                "年发电量": 4.95,
+                "坝高": "",
+                "总库容": ""
+            }
+            ];
+
+            const points = data.map(item => ({
+                name: item.名称,
+                value: [item.经度, item.纬度],
+                流经河流: item.流经河流,
+                投产年份: item.投产年份,
+                总装机容量: item.总装机容量,
+                机组数量: item.机组数量,
+                最大单机功率: item.最大单机功率,
+                年发电量: item.年发电量,
+                坝高: item.坝高,
+                总库容: item.总库容
+            }));
+
+            maps.sichuanMap.setOption({
+                series: [{
+                    data: points
+                }]
+            });
+        }
+
+        // 初始化统计图表
+        function initStatisticsChart() {
+            const statsChart = echarts.init(document.getElementById('statisticsChart'));
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    textStyle: {
+                        fontSize: 14  // 增大提示框文字大小
+                    }
+                },
+                legend: {
+                    data: ['水电发电量(亿千瓦时)', '同比增长(%)'],
+                    top: 10,
+                    textStyle: {
+                        color: '#fff',
+                        fontSize: 16  // 增大图例文字大小
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: ['2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'],
+                        axisLabel: {
+                            color: '#fff',
+                            fontSize: 14  // 增大x轴标签字体大小
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '发电量',
+                        min: 0,
+                        max: 5000,
+                        axisLabel: {
+                            formatter: '{value}',
+                            color: '#fff',
+                            fontSize: 14  // 增大y轴标签字体大小
+                        },
+                        nameTextStyle: {
+                            color: '#fff',
+                            fontSize: 14  // 增大y轴名称字体大小
+                        }
+                    },
+                    {
+                        type: 'value',
+                        name: '增长率',
+                        min: -10,
+                        max: 30,
+                        axisLabel: {
+                            formatter: '{value}%',
+                            color: '#fff',
+                            fontSize: 14  // 增大第二个y轴标签字体大小
+                        },
+                        nameTextStyle: {
+                            color: '#fff',
+                            fontSize: 14  // 增大第二个y轴名称字体大小
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: '水电发电量(亿千瓦时)',
+                        type: 'bar',
+                        barWidth: '40%',
+                        data: [2780, 3003, 3217, 3436, 3701, 3980, 4236, 4492, 4740],
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#83bff6' },
+                                { offset: 0.5, color: '#188df0' },
+                                { offset: 1, color: '#188df0' }
+                            ])
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            color: '#fff',
+                            fontSize: 14  // 增大柱状图标签字体大小
+                        }
+                    },
+                    {
+                        name: '同比增长(%)',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: [5.2, 8.0, 7.1, 6.8, 7.7, 7.5, 6.4, 6.0, 5.5],
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#f39c12'
+                        },
+                        lineStyle: {
+                            width: 3,
+                            color: '#f39c12'
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: '{c}%',
+                            color: '#f39c12',
+                            fontSize: 14  // 增大线图标签字体大小
+                        }
+                    }
+                ]
+            };
+            
+            statsChart.setOption(option);
+            return statsChart;
+        }
+        
+        // 按钮和弹窗事件
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('statsModal');
+            const btn = document.getElementById('openStatsBtn');
+            const closeBtn = document.getElementById('closeModal');
+            let statisticsChart = null;
+            
+            btn.onclick = function() {
+                modal.style.display = 'block';
+                if (!statisticsChart) {
+                    statisticsChart = initStatisticsChart();
+                } else {
+                    statisticsChart.resize();
+                }
+            };
+            
+            closeBtn.onclick = function() {
+                modal.style.display = 'none';
+            };
+            
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        });
+
+        window.addEventListener('resize', function() {
+            const maps = initMaps();
+            maps.chinaMap.resize();
+            maps.sichuanMap.resize();
+        });
+    </script>
+</body>
+</html> 

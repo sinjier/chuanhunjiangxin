@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四川省地图展示</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+    <style>
+        #mapContainer {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div id="mapContainer"></div>
+    <script>
+        // 注册四川省地图数据
+        echarts.registerMap('sichuan', {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "成都市",
+                        "cp": [104.065735, 30.659462]
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [[103.919, 30.596], [104.067, 30.578], [104.198, 30.649], [104.287, 30.725], [104.065, 30.659]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "绵阳市",
+                        "cp": [104.741722, 31.46402]
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [[104.555, 31.570], [104.741, 31.464], [104.927, 31.358], [104.741, 31.464]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "自贡市",
+                        "cp": [104.773447, 29.352765]
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                           [[104.673, 29.352], [104.773, 29.352], [104.873, 29.352], [104.773, 29.352]]
+                        ]
+                    }
+                },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "攀枝花市",
+        "cp": [101.716007, 26.580446]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[101.616, 26.580], [101.716, 26.580], [101.816, 26.580], [101.716, 26.580]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "泸州市",
+        "cp": [105.443348, 28.889138]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[105.343, 28.889], [105.443, 28.889], [105.543, 28.889], [105.443, 28.889]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "德阳市",
+        "cp": [104.398651, 31.127991]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[104.298, 31.127], [104.398, 31.127], [104.498, 31.127], [104.398, 31.127]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "广元市",
+        "cp": [105.843357, 32.435435]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[105.743, 32.435], [105.843, 32.435], [105.943, 32.435], [105.843, 32.435]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "遂宁市",
+        "cp": [105.532721, 30.513618]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[105.482, 30.523], [105.582, 30.553], [105.642, 30.523], [105.532, 30.513]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "内江市",
+        "cp": [105.0667, 29.5904]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[105.016, 29.540], [105.166, 29.590], [105.116, 29.640], [105.016, 29.540]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "资阳市",
+        "cp": [104.6346, 30.1227]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[104.584, 30.072], [104.684, 30.132], [104.734, 30.122], [104.634, 30.122]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "乐山市",
+        "cp": [103.7642, 29.5595]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[103.714, 29.509], [103.814, 29.559], [103.864, 29.549], [103.764, 29.509]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "眉山市",
+        "cp": [103.8417, 30.0585]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[103.791, 30.008], [103.891, 30.058], [103.941, 30.048], [103.841, 30.008]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "雅安市",
+        "cp": [103.001, 30.039]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[102.951, 29.989], [103.051, 30.039], [103.101, 30.029], [103.001, 29.989]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "巴中市",
+        "cp": [106.7511, 31.8704]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[106.701, 31.820], [106.801, 31.870], [106.851, 31.860], [106.751, 31.820]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "达州市",
+        "cp": [107.468023, 31.209572]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[107.368, 31.159], [107.468, 31.209], [107.568, 31.259], [107.468, 31.209]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "广安市",
+        "cp": [106.633369, 30.456398]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[106.533, 30.406], [106.633, 30.456], [106.733, 30.506], [106.633, 30.456]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "宜宾市",
+        "cp": [104.630825, 28.760189]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[104.530, 28.710], [104.630, 28.760], [104.730, 28.810], [104.630, 28.760]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "南充市",
+        "cp": [106.082974, 30.795281]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[105.982, 30.745], [106.082, 30.795], [106.182, 30.845], [106.082, 30.795]]
+        ]
+      }
+    }
+            ]
+        });
+
+        // 初始化 ECharts 实例
+        var myChart = echarts.init(document.getElementById('mapContainer'));
+
+        // 设置 ECharts 配置项
+        var option = {
+            geo: {
+                map: 'sichuan',
+                roam: true,  // 启用缩放和拖动
+                itemStyle: {
+                    areaColor: '#f0f0f0',  // 区域颜色
+                    borderColor: '#fff',  // 边界颜色
+                    borderWidth: 1
+                }
+            },
+            series: [{
+                type: 'map',
+                mapType: 'sichuan',  // 使用注册的四川省地图
+                roam: true,
+                data: [
+                    { name: '成都市', value: 120 },
+                    { name: '绵阳市', value: 80 },
+                    { name: '德阳市', value: 60 },
+                    { name: '泸州市', value: 75 },
+                    { name: '宜宾市', value: 50 },
+                    { name: '乐山市', value: 55 },
+                    { name: '眉山市', value: 40 },
+                    { name: '攀枝花市', value: 20 },
+                    { name: '自贡市', value: 35 },
+                    { name: '南充市', value: 90 },
+                    { name: '内江市', value: 45 },
+                    { name: '资阳市', value: 35 },
+                    { name: '雅安市', value: 25 },
+                    { name: '广元市', value: 55 },
+                    { name: '广安市', value: 30 },
+                    { name: '达州市', value: 60 },
+                    { name: '巴中市', value: 30 },
+                    { name: '遂宁市', value: 40 }
+                    
+                ]  // 如果需要，可以在这里添加具体的数据
+            }]
+        };
+
+        // 使用设置的配置项
+        myChart.setOption(option);
+    </script>
+</body>
+</html>

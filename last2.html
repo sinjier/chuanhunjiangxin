@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>分布图页</title>
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="js/echarts.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/china.js"></script>
+    <link rel="stylesheet" href="CSS/ini.css">
+    <link rel="stylesheet" href="CSS/style1.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap">
+    <script>
+        $(function() {
+            var li = $('#tabs');
+            var cc = $('#tabs option');
+            var len = cc.length;
+            li.change(function() {
+                var t = parseInt(li.get(0).selectedIndex);
+                for (var i = 0; i < len; i++) {
+                    if (t == i) {
+                        $('#chanpin' + t).show();
+                    } else {
+                        $('#chanpin' + i).hide();
+                    }
+                }
+            });
+        });
+    </script>
+    <style>
+        /* 川蜀竹翠色系 */
+        :root {
+            --color-cuizhu: #3A7D44; /* 翠竹绿 */
+            --color-qingcheng: #3D6F8D; /* 青城蓝 */
+            --color-shujin: #C83E3D; /* 蜀锦红 */
+            --color-jianmen: #E6A23C; /* 剑门黄 */
+            --color-mozhu: #2C3033; /* 墨竹黑 */
+            --color-yunwu: #F8F9FA; /* 云雾白 */
+            --color-jiangshui: #6A8CAF; /* 江水青 */
+            --color-shanyan: #7A6855; /* 山岩棕 */
+        }
+        
+        body, html, *, marquee, font, div, a, p, h1, h2, h3, h4, h5, h6, span, li, ul {
+            font-family: 'Ma Shan Zheng', cursive !important;
+        }
+        
+        /* 统一的header-container样式 */
+        .header-container {
+            background-color: rgba(44, 48, 51, 0.85); /* 墨竹黑 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            border-bottom: 2px solid rgba(58, 125, 68, 0.5); /* 翠竹绿边框 */
+        }
+        
+        header .brand {
+            color: #F8F9FA; /* 云雾白 */
+            font-size: 1.5em;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            font-family: sans-serif !important;
+        }
+        
+        /* 导航链接样式 */
+        .navigation-items a {
+            position: relative;
+            color: #F8F9FA; /* 默认为云雾白 */
+            text-decoration: none;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        
+        .navigation-items a:hover {
+            color: #E6A23C; /* 剑门黄 */
+            transform: translateY(-2px);
+            animation: float 0.3s ease-in-out;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-2px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        /* 首页链接特殊颜色 */
+        .navigation-items a[href="top.html"] {
+            color: #3A7D44; /* 翠竹绿 */
+        }
+        
+        /* 珍惜动物分布链接特殊颜色 */
+        .navigation-items a[href="shida_html/one.html"] {
+            color: #C83E3D; /* 蜀锦红 */
+        }
+        
+        /* 各项数据链接特殊颜色 */
+        .navigation-items a[href="page2.html"] {
+            color: #3D6F8D; /* 青城蓝 */
+        }
+        
+        /* 云词政策链接特殊颜色 */
+        .navigation-items a[href="last2.html"] {
+            color: #E6A23C; /* 剑门黄 */
+        }
+        
+        /* 当前活跃页面 */
+        .navigation-items a.active {
+            font-weight: bold;
+        }
+        
+        .navigation-items a.active:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background-color: #E6A23C; /* 剑门黄下划线 */
+        }
+        
+        /* 品牌文字样式 */
+        .brand {
+            color: #E6A23C !important; /* 剑门黄 */
+            font-size: 24px !important;
+            font-weight: bold !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .brand:hover {
+            color: #F8F9FA !important; /* 云雾白悬停 */
+            transform: translateY(-2px);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .selector {
+            margin: 10px 5px 0 0;
+            /* float: right; */
+        }
+        
+        #content .active {
+            display: block;
+        }
+        
+        .chart {
+            width: 700px;
+            height: 600px;
+            margin: 0 auto;
+        }
+        
+        .none {
+            display: none;
+        }
+        
+        .video-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0.5;
+        }
+        
+        .video-slide.active {
+            clip-path: circle(150% at 0 50%);
+            transition: 2s ease;
+            transition-property: clip-path;
+        }
+        
+        div marquee {
+            height: 35px;
+            margin-top: 15px;
+        }
+        
+        .tb>h3 {
+            background: url(img/titleioc.png) left center no-repeat;
+            text-indent: 27px;
+            margin-left: 20px;
+            margin-top: 15px;
+            height: 33px;
+            line-height: 33px;
+            font-size: 24px;
+            width: 90%;
+            color: #fff;
+            font-weight: 100;
+        }
+        
+        .gxlist {
+            /* float: right; */
+            margin-left: 10%;
+            width: 400px;
+            height: 650px;
+            margin-right: 15px;
+            background: rgba(12, 16, 54, 0.7);
+            position: static;
+        }
+        
+        .gxlist ul {
+            margin-top: 40px;
+            width: 100%;
+            height: 80px;
+        }
+        
+        .gxlist ul li {
+            width: 400px;
+            height: 44px;
+            line-height: 44px;
+            font-size: 20px;
+            color: #F8F9FA; /* 云雾白 */
+            text-align: 3px;
+            border-bottom: 1px dashed rgba(58, 125, 68, 0.5); /* 翠竹绿 */
+            margin: 0 auto;
+            padding-left: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .gxlist ul li:hover {
+            background-color: rgba(61, 111, 141, 0.3); /* 青城蓝 */
+            padding-left: 10px;
+        }
+        
+        .gxlist ul a {
+            text-decoration: none;
+            color: #F8F9FA; /* 云雾白 */
+            transition: all 0.3s ease;
+        }
+        
+        .gxlist ul a:hover {
+            color: #E6A23C !important; /* 剑门黄 */
+        }
+        
+        .brand {
+            font-family: sans-serif !important;
+        }
+        
+        /* 添加背景图片样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('last2.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        
+        /* 添加半透明遮罩层 */
+        .content-overlay {
+            position: relative;
+            z-index: 1;
+            background-color: rgba(0, 0, 0, 0.5);
+            min-height: 100vh;
+        }
+        
+        /* 调整section样式 */
+        section {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* 调整内容区域样式 */
+        .content-container {
+            position: relative;
+            z-index: 3;
+            background-color: rgba(44, 48, 51, 0.6);
+            border-radius: 5%;
+            padding: 15px 5px;
+            border: 1px solid rgba(58, 125, 68, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content-overlay">
+        <div class="header-container">
+            <header>
+                <a href="index.html" class="brand">川魂匠心</a>
+                <div class="menu-btn"></div>
+                <div class="navigation">
+                    <div class="navigation-items">
+                        <a href="index.html">序章·川魂启程</a>
+                        <a href="main.html">第一篇章·生生不息</a>
+                        <a href="shida_html/one.html">第二篇章·生态川境</a>
+                        <a href="page2.html">第三篇章·光明川流</a>
+                        <a href="last2.html" class="active">第四篇章·云词政策</a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <section style="height: 900px; padding-top: 80px;">
+            <video class="video-slide active" src="3.mp4" autoplay muted loop></video>
+            <div class="content-container" style="position: absolute; left: 1%; width: 70%; height: 85%; margin-top: 4%;">
+                <marquee scrollamount="6" style="margin-top: 10px;">
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5.5px" color="#3D6F8D">成渝地区双城经济圈</font>
+                </marquee>
+
+                <marquee scrollamount="4" style="margin-top: 20px;">
+                    <font size="5px" color="#6A8CAF">长江经济带枢纽节点</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3A7D44">西部陆海新通道</font>
+                </marquee>
+
+                <marquee scrollamount="7" style="margin-top: 20px;">
+                    <font size="4.8px" color="#E6A23C">一带一路内陆开放高地</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="4.8px" color="#3D6F8D">新时代西部大开发示范区</font>
+                </marquee>
+
+                <marquee scrollamount="9" style="margin-top: 20px;">
+                    <font size="6.5px" color="#3A7D44">公园城市示范区</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="4.8px" color="#3A7D44">大熊猫国家公园</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="4.5px" color="#6A8CAF">若尔盖湿地保护带</font>
+                </marquee>
+
+                <marquee scrollamount="8" style="margin-top: 20px;">
+                    <font size="5px" color="#6A8CAF">长江上游生态屏障</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3D6F8D">碳中和创新试验区</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3A7D44">清洁能源基地</font>
+                </marquee>
+
+                <marquee scrollamount="5" style="margin-top: 20px;">
+                    <font size="5px" color="#3D6F8D">中国"气大庆"</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#7A6855">攀西战略资源创新区</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5.2px" color="#E6A23C">世界级白酒产业集群</font>
+                </marquee>
+
+                <marquee scrollamount="7" style="margin-top: 20px;">
+                    <font size="5px" color="#3D6F8D">数字经济发展先导区</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5.2px" color="#3A7D44">天府粮仓</font>
+                </marquee>
+
+                <marquee scrollamount="9" style="margin-top: 20px;">
+                    <font size="5.2px" color="#3A7D44">川粮油/川猪/川茶</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#7A6855">长征国家文化公园</font>
+                </marquee>
+                
+                <marquee scrollamount="6" style="margin-top: 20px;">
+                    <font size="6px" color="#C83E3D">三星堆-金沙遗址公园</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="4.5px" color="#3A7D44">藏羌彝文化产业走廊</font>
+                </marquee>
+                
+                <marquee scrollamount="8" style="margin-top: 20px;">
+                    <font size="5px" color="#3D6F8D">中国（绵阳）科技城</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#7A6855">智慧政务通</font>
+                </marquee>
+                
+                <marquee scrollamount="7" style="margin-top: 20px;">
+                    <font size="4.8px" color="#3A7D44">彝路相伴</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5.2px" color="#6A8CAF">安逸四川</font>
+                </marquee>
+
+                <marquee scrollamount="6" style="margin-top: 20px;">
+                    <font size="5.5px" color="#3D6F8D">峨眉山-乐山大佛</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3A7D44">九寨沟-黄龙</font>
+                </marquee>
+
+                <marquee scrollamount="8" style="margin-top: 20px;">
+                    <font size="5.2px" color="#E6A23C">四姑娘山</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#C83E3D">川菜文化</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3A7D44">都江堰</font>
+                </marquee>
+                
+                <marquee scrollamount="5" style="margin-top: 20px;">
+                    <font size="5.5px" color="#3A7D44">熊猫基地</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="4.8px" color="#6A8CAF">川西高原</font>
+                </marquee>
+
+                <marquee scrollamount="7" style="margin-top: 20px;">
+                    <font size="5px" color="#3D6F8D">川剧变脸</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#C83E3D">蜀绣文化</font>
+                </marquee>
+
+                <marquee scrollamount="6" style="margin-top: 20px;">
+                    <font size="5.2px" color="#E6A23C">青城山-都江堰</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3A7D44">武侯祠</font>
+                </marquee>
+
+                <marquee scrollamount="8" style="margin-top: 20px;">
+                    <font size="5px" color="#7A6855">杜甫草堂</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3D6F8D">宽窄巷子</font>
+                </marquee>
+
+                <marquee scrollamount="7" style="margin-top: 20px;">
+                    <font size="5.2px" color="#3A7D44">锦里古街</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#6A8CAF">春熙路</font>
+                </marquee>
+
+                <marquee scrollamount="6" style="margin-top: 20px;">
+                    <font size="5px" color="#C83E3D">川西林盘</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3D6F8D">川西民居</font>
+                </marquee>
+
+                <marquee scrollamount="9" style="margin-top: 20px;">
+                    <font size="5.2px" color="#E6A23C">川西坝子</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3A7D44">川西民俗</font>
+                </marquee>
+
+                <marquee scrollamount="7" style="margin-top: 20px;">
+                    <font size="5px" color="#7A6855">川西美食</font>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    <font size="5px" color="#3D6F8D">川西特产</font>
+                </marquee>
+            </div>
+            <div style="position: absolute; left: 70%; height: 85%; margin-top: 4%;">
+                <div class="gxlist tb" style="height: 100%; background: rgba(44, 48, 51, 0.8); border: 1px solid rgba(58, 125, 68, 0.3); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); border-radius: 5px;">
+                    <h3 style="margin-top: 8%;color: #E6A23C; font-size: 28px; line-height: 36px; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);">
+                        四川省政策文件
+                    </h3>
+                    <ul style="margin-top: 30px;">
+                        <a href="https://www.gov.cn/zhengce/2021-10/21/content_5643875.htm">
+                            <li>《成渝地区双城经济圈建设规划纲要》</li>
+                        </a>
+                        <a href="https://www.guanghan.gov.cn/gk/xxgk/jbxxgk/gqgg/1616515.htm">
+                            <li>《三星堆国家文物保护示范区建设措施》</li>
+                        </a>
+                        <a href="https://www.sc.gov.cn/10462/zfwjts/2022/1/17/516b4a42e34043c5b6c2b5ff6f3716a4.shtml">
+                            <li>《四川省"十四五"生态环境保护规划》</li>
+                        </a>
+                        <a href="https://www.sc.gov.cn/10462/zfwjts/2023/1/5/39c7928fe869401cb18df118f37abb8c.shtml">
+                            <li>《四川省碳达峰实施方案》</li>
+                        </a>
+                        <a href="https://www.sc.gov.cn/10462/c108548/2021/3/17/f4f228aa75b64a879a0c8671a06dcc18.shtml">
+                            <li>《四川省国民经济和社会发展规划》</li>
+                        </a>
+                        <a href="https://www.sc.gov.cn/10462/10464/10465/10574/2015/5/7/10334993.shtml">
+                            <li>《四川省推进"一带一路"建设三年行动计划》</li>
+                        </a>
+                        <a href="https://www.gov.cn/zhengce/zhengceku/202401/content_6929021.htm">
+                            <li>《发展数字经济培育新质生产力的实施意见》</li>
+                        </a>
+                        <a href="https://www.cdtf.gov.cn/cdtfxq/c20200918/2020-09/24/content_5fa5347da6e14b109090f6bd837a9ba2.shtml">
+                            <li>《天府中央商务区规划》印发实施</li>
+
+                        </a>
+                        <a href="https://www.sc.gov.cn/10462/10464/10797/2025/1/26/2486c253e90b4c69b6860592fd322fe5.shtml">
+                            <li>《关于全面推进美丽四川建设的实施意见》</li>
+                        </a>
+                        <a href="https://www.sc.gov.cn/10462/10778/10876/2022/12/8/b85012bbfa7748f38283e94f05486140.shtml">
+                            <li>《关于实施"川字号"农业品牌提升行动的通知》</li>
+                        </a>
+                        <a href="https://www.sc.gov.cn/10462/c105962/2023/9/27/f5ac35d1b7e6431b9b8ec4075c70b75a.shtml">
+                            <li>《四川省"大运会杯"文化旅游发展大会总体方案》</li>
+                        </a>
+                        <a href="https://www.sc.gov.cn/10462/10464/10797/2020/10/25/f5133411e8dd4787933d8ea0067b91e2.shtml">
+                            <li>《四川省推进新时代西部大开发形成新格局实施方案》</li>
+                        </a>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

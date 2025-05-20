@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/page3.css">
+    <link rel="stylesheet" href="CSS/page2.css">
+    <link rel="stylesheet" type="text/css" href="CSS/index.css">
+    <link rel="stylesheet" href="CSS/style1.css">
+    <title>光伏发电站</title>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script src="js/rem.js"></script>
+    <script type="text/javascript" src="js/echarts.min.js"></script>
+    <script src="js/index3.js"></script>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=c29910020dc2dbb9a810e19518860446"></script>    
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/echarts.min.js"></script>
+    <script type="text/javascript" src="js/china.js"></script>    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url('img/y.jpg') no-repeat center center fixed;
+            background-size: cover;
+            padding-top: 98px; /* 调整内容区域的上边距，为两个导航栏留出空间 */
+        }
+
+        /* 导航栏容器样式 */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        /* 主导航栏样式 */
+        .main-nav {
+            background-color: rgba(44, 48, 51, 0.85);
+            border-bottom: 2px solid rgba(58, 125, 68, 0.5);
+            padding: 15px 5%;
+            height: 68px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 次导航栏样式 */
+        .sub-nav {
+            background-color: rgba(44, 48, 51, 0.85);
+            border-bottom: 2px solid rgba(58, 125, 68, 0.5);
+            padding: 5px 5%;
+            height: 30px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* 品牌名称样式 */
+        .brand {
+            color: #fff;
+            font-size: 22px; /* 增大品牌名称字体 */
+            font-weight: bold;
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        /* 导航链接容器样式 */
+        .navigation {
+            display: flex;
+            align-items: center;
+        }
+
+        .navigation-items, .navigation-items2 {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* 导航链接样式 */
+        .navigation-items a, .navigation-items2 a {
+            font-size: 18px !important; /* 增大导航链接字体 */
+            color: #fff;
+            transition: color 0.3s ease;
+            text-decoration: none;
+            padding: 5px 10px;
+        }
+
+        /* 导航链接悬停效果 */
+        .navigation-items a:hover, .navigation-items2 a:hover {
+            color: #E6A23C !important;
+        }
+
+        /* 激活的导航链接样式 */
+        .navigation-items a.active, .navigation-items2 a.active {
+            color: #3A7D44 !important;
+            font-weight: bold;
+        }
+
+        /* 地图容器样式 */
+        .map-container {
+            margin-top: 20px;
+        }
+
+        .map-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            height: calc(100vh - 150px);
+            padding: 20px;
+            background: url('img/y.jpg') no-repeat center center;
+            background-size: cover;
+        }
+        
+        .map-left, .map-right {
+            position: relative; 
+            height: 100%;
+            border: 1px solid #1e90ff;
+            padding: 10px;
+            background: url('img/y.jpg') no-repeat center center;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        .map-left::before, .map-right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 0;
+        }
+        
+        .map-left {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .map-right {
+            flex: 2;
+            min-width: 600px;
+        }
+        
+        #chinaMap, #solarMap, #sichuanMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tooltip {
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border: 1px solid #1e90ff;
+            color: #fff;
+        }
+
+        .title {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px; /* 增大地图标题字体 */
+            color: #fff;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏容器 -->
+    <div class="nav-container">
+        <!-- 主导航栏 -->
+        <div class="main-nav">
+            <a href="top.html" class="brand">川魂匠心</a>
+            <div class="menu-btn"></div>
+            <div class="navigation">
+                <div class="navigation-items">
+                    <a href="top.html">序章·川魂启程</a>
+                    <a href="main.html">第一篇章·生生不息</a>
+                    <a href="shida_html/one.html">第二篇章·生态川境</a>
+                    <a href="page2.html" class="active">第三篇章·光明川流</a>
+                    <a href="last2.html">第四篇章·云词政策</a>
+                </div>
+            </div>
+        </div>
+        <!-- 次导航栏 -->
+        <div class="sub-nav">
+            <div class="navigation2">
+                <div class="navigation-items2">
+                    <a href="page2.html">水电站</a>
+                    <a href="page3.html" class="active">光伏发电站</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="mainbox">
+        <div class="map-container">
+            <div class="map-left">
+                <div class="title title-china">输电路线图</div>
+                <div id="chinaMap"></div>
+                <div style="position: absolute; left: 10px; bottom: 10px; color: #fff; font-size: 12px; z-index: 1000; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">审图号: GS(2021)6375号</div>
+            </div>
+            <div class="map-right">
+                <div class="title title-sichuan">四川省光伏电站分布图</div>
+                <div id="sichuanMap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 定义输电路线数据
+        const powerTransmissionRoutes = [
+            {
+                name: '甘孜州正斗光伏电站输电路线',
+                coords: [
+                    [101.9669, 30.0506],  // 甘孜州正斗
+                    [106.5504, 29.5630],  // 重庆市
+                    [114.3055, 30.5928],  // 湖北省
+                    [118.7965, 32.0584]   // 江苏省
+                ]
+            },
+            {
+                name: '甘孜州理塘光伏电站输电路线',
+                coords: [
+                    [100.2697, 29.9967],  // 甘孜州理塘
+                    [114.3055, 30.5928],  // 湖北省
+                    [121.4737, 31.2304]   // 上海市
+                ]
+            },
+            {
+                name: '阿坝州红原光伏电站输电路线',
+                coords: [
+                    [102.5446, 32.7936],  // 阿坝州红原
+                    [106.5504, 29.5630],  // 重庆市
+                    [114.3055, 30.5928],  // 湖北省
+                    [112.9834, 28.1941]  // 湖南省                    
+                ]
+            },
+            {
+                name: '凉山州会理光伏电站输电路线',
+                coords: [
+                    [102.2447, 26.6565],  // 凉山州会理
+                    [102.8329, 24.8801],  // 云南省
+                    [112.9834, 28.1941],  // 湖南省
+                    [121.4737, 31.2304]   // 上海市
+                ]
+            },
+            {
+                name: '凉山州盐源光伏基地输电路线',
+                coords: [
+                    [101.5092, 27.4231],  // 凉山州盐源
+                    [114.3055, 30.5928],  // 湖北省
+                    [118.7965, 32.0584],  // 江苏省
+                    [121.4737, 31.2304]   // 上海市
+                ]
+            },
+            {
+                name: '攀枝花盐边光伏电站输电路线',
+                coords: [
+                    [101.8557, 26.6887],  // 攀枝花盐边
+                    [114.3055, 30.5928],  // 湖北省
+                    [118.7965, 32.0584],  // 江苏省
+                    [121.4737, 31.2304]   // 上海市
+                ]
+            },
+            {
+                name: '攀枝花仁和光伏项目输电路线',
+                coords: [
+                    [101.7388, 26.4971],  // 攀枝花仁和
+                    [114.3055, 30.5928],  // 湖北省
+                    [118.7965, 32.0584],  // 江苏省
+                    [121.4737, 31.2304]   // 上海市
+                ]
+            }
+        ];
+
+        // 注册四川省地图数据
+        fetch('https://geo.datav.aliyun.com/areas_v3/bound/510000_full.json')
+            .then(response => response.json())
+            .then(geoJson => {
+                echarts.registerMap('sichuan', geoJson);
+                const maps = initMaps();
+                loadPowerStationData(maps);
+            })
+            .catch(error => {
+                console.error('加载地图数据失败:', error);
+            });
+
+        function initMaps() {
+            const chinaMap = echarts.init(document.getElementById('chinaMap'));
+            const sichuanMap = echarts.init(document.getElementById('sichuanMap'));
+
+            // 中国地图配置
+            const chinaOption = {
+                background: 'url(img/y.jpg) no-repeat center center fixed',  
+                geo: {
+                    map: 'china',
+                        roam: false,  // 禁止地图拖动          
+                        zoom: 2.9,    // 调整缩放级别以匹配图片
+                        center: [110, 28],  // 调整中心点位置以匹配图片
+                        aspectScale: 0.85,  // 调整地图的长宽比
+                
+                    label: { 
+                        show: true, 
+                        color: '#fff',
+                        fontSize: 12
+                    },
+                    itemStyle: {
+                        areaColor: '#003',
+                        borderColor: '#0ff'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            areaColor: '#00f'
+                        }
+                    },
+                    grid: {
+                                top: '10%',
+                                bottom: '10%'
+                            },
+                    regions: [
+                        // 保留需要显示的省份
+                        { name: '重庆市' },
+                        { name: '湖北省' },
+                        { name: '江苏省' },
+                        { name: '上海市' },
+                        { name: '云南省' },
+                        { name: '湖南省' },            
+
+                        // 隐藏其他省份（包括所有的透明和隐藏标签）
+                        ...[
+                            '北京', '天津', '河北', '山西', '内蒙古', '辽宁', '吉林', '黑龙江',
+                            '陕西', '甘肃', '青海', '宁夏', '新疆', '西藏', '广西',
+                            '江西', '四川省', '海南', '福建', '浙江', '山东',
+                            '河南', '香港', '澳门', '台湾','南海诸岛','广东',
+                        ].map(name => ({
+                            name,
+                            itemStyle: { opacity: 0 },  // 隐藏区域
+                            label: { show: false }      // 隐藏标签
+                        }))
+                    ],
+                    background: {
+                        image: 'img/y.jpg',  // 背景图片路径
+                        size: 'cover',  // 自动适应容器大小
+                        position: 'center'  // 背景居中显示
+                    }
+                },
+                series: [
+                    ...powerTransmissionRoutes.map(route => ({
+                        name: route.name,
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        zlevel: 2,
+                        effect: {
+                            show: true,
+                            period: 5,
+                            trailLength: 0.1,
+                            symbol: 'arrow',
+                            symbolSize: 6
+                        },
+                        lineStyle: {
+                            color: '#00ffff',
+                            width: 2,
+                            opacity: 0.6,
+                            curveness: 0.2
+                        },
+                        data: route.coords.slice(0, -1).map((point, i) => ({
+                            coords: [point, route.coords[i + 1]]
+                        }))
+                    })),
+                    {
+                        type: 'effectScatter',
+                        coordinateSystem: 'geo',
+                        zlevel: 2,
+                        rippleEffect: {
+                            brushType: 'stroke'
+                        },
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: '{b}',
+                            color: '#0ff',
+                            fontSize: 12
+                        },
+                        symbolSize: 10,
+                        itemStyle: {
+                            color: '#0ff'
+                        },
+                        data: [
+                            { name: '甘孜州正斗', value: [101.9669, 30.0506] },
+                            { name: '甘孜州理塘', value: [100.2697, 29.9967] },
+                            { name: '阿坝州红原', value: [102.5446, 32.7936] },
+                            { name: '凉山州会理', value: [102.2447, 26.6565] },
+                            { name: '凉山州盐源', value: [101.5092, 27.4231] },
+                            { name: '攀枝花盐边', value: [101.8557, 26.6887] },
+                            { name: '攀枝花仁和', value: [101.7388, 26.4971] },
+                            { name: '重庆市', value: [106.5504, 29.5630] },
+                            { name: '湖北省', value: [114.3055, 30.5928] },
+                            { name: '江苏省', value: [118.7965, 32.0584] },
+                            { name: '上海市', value: [121.4737, 31.2304] },
+                            { name: '云南省', value: [102.8329, 24.8801] },
+                            { name: '湖南省', value: [112.9834, 28.1941] },               
+                        ]
+                    }
+                ]
+            };
+
+            // 四川地图配置
+            const sichuanOption = {
+                background: 'url(img/y.jpg) no-repeat center center fixed',  
+                geo: {
+                    map: 'sichuan',
+                    roam: false,
+                    zoom: 1.2,
+                    label: {
+                        show: true,
+                        color: '#fff',
+                        fontSize: 14
+                    },
+                    itemStyle: {
+                        areaColor: '#003',
+                        borderColor: '#0ff'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            areaColor: '#00f'
+                        }
+                    }
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        if (params.data) {
+                            const data = params.data;
+                            return `
+                                <div class="tooltip">
+                                    <h4>${data.name}</h4>
+                                    <p>所属地区：${data.所属地区}</p>
+                                    <p>特点：${data.特点}</p>
+                                </div>
+                            `;
+                        }
+                        return params.name;
+                    }
+                },
+                series: [{
+                    type: 'effectScatter',
+                    coordinateSystem: 'geo',
+                    data: [],
+                    symbol: 'circle',
+                    symbolSize: 12,
+                    rippleEffect: {
+                        brushType: 'stroke'
+                    },
+                    itemStyle: {
+                        color: '#ff0',
+                        borderColor: '#ff0',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: true,
+                        position: 'right',
+                        formatter: '{b}',
+                        color: '#ff0',
+                        fontSize: 12
+                    }
+                }]
+            };
+
+            chinaMap.setOption(chinaOption);
+            sichuanMap.setOption(sichuanOption);
+
+            return { chinaMap, sichuanMap };
+        }
+
+        fetch('https://geo.datav.aliyun.com/areas_v3/bound/510000_full.json')
+            .then(response => response.json())
+            .then(geoJson => {
+                echarts.registerMap('sichuan', geoJson);
+                const maps = initMaps();
+                loadPowerStationData(maps);
+            })
+            .catch(error => {
+                console.error('加载地图数据失败:', error);
+            });
+
+        // 加载电站数据
+        function loadPowerStationData(maps) {
+            const data = [
+                { "名称": "甘孜州正斗光伏电站", "所属地区": "甘孜州乡城县正斗乡", "经度": 99.7833, "纬度": 28.8833, "特点": "全球海拔最高光伏项目（4000米+）" },
+                { "名称": "甘孜州理塘光伏电站", "所属地区": "甘孜州理塘县", "经度": 100.2667, "纬度": 29.9667, "特点": "高原高寒示范项目" },
+                { "名称": "阿坝州红原光伏电站", "所属地区": "阿坝州红原县", "经度": 102.55, "纬度": 32.8, "特点": "牧光互补项目" },
+                { "名称": "凉山州会理光伏电站", "所属地区": "凉山州会理市", "经度": 102.25, "纬度": 26.65, "特点": "攀西大型集中式光伏" },
+                { "名称": "凉山州盐源光伏基地", "所属地区": "凉山州盐源县", "经度": 101.5, "纬度": 27.4167, "特点": "雅砻江风光水互补项目" },
+                { "名称": "攀枝花盐边光伏电站", "所属地区": "攀枝花市盐边县", "经度": 101.85, "纬度": 26.7, "特点": "攀西阳光走廊核心区" },
+                { "名称": "攀枝花仁和光伏项目", "所属地区": "攀枝花市仁和区", "经度": 101.7333, "纬度": 26.3833, "特点": "分布式与集中式结合" }
+            ];
+
+            const points = data.map(item => ({
+                name: item.名称,
+                value: [item.经度, item.纬度],
+                所属地区: item.所属地区,
+                特点: item.特点
+            }));
+
+            maps.sichuanMap.setOption({
+                series: [{
+                    data: points
+                }]
+            });
+        }
+        
+
+        window.addEventListener('resize', function() {
+            const maps = initMaps();
+            maps.chinaMap.resize();
+            maps.sichuanMap.resize();
+        });
+    </script>
+</body>
+</html>
