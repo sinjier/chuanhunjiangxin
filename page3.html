@@ -284,7 +284,7 @@
         ];
 
         // 注册四川省地图数据
-        fetch('https://geo.datav.aliyun.com/areas_v3/bound/510000_full.json')
+        fetch('/api/proxy') 
             .then(response => response.json())
             .then(geoJson => {
                 echarts.registerMap('sichuan', geoJson);
@@ -482,7 +482,7 @@
             return { chinaMap, sichuanMap };
         }
 
-        fetch('https://geo.datav.aliyun.com/areas_v3/bound/510000_full.json')
+        fetch('/api/proxy') 
             .then(response => response.json())
             .then(geoJson => {
                 echarts.registerMap('sichuan', geoJson);
