@@ -646,60 +646,7 @@
             map.addControl(new AMap.ToolBar({
                 liteStyle: true
             }));
-
-            // 加载河流数据
-            fetch('../data/剪切河流.json')
-                .then(response => response.json())
-                .then(data => {
-                    data.geometries.forEach(geometry => {
-                        if (geometry.type === 'LineString') {
-                            var path = geometry.coordinates.map(coord => [coord[0], coord[1]]);
-                            var polyline = new AMap.Polyline({
-                                path: path,
-                                strokeColor: '#1E90FF',
-                                strokeWeight: 2,
-                                strokeOpacity: 0.8
-                            });
-                            map.add(polyline);
-                        } else if (geometry.type === 'MultiLineString') {
-                            geometry.coordinates.forEach(line => {
-                                var path = line.map(coord => [coord[0], coord[1]]);
-                                var polyline = new AMap.Polyline({
-                                    path: path,
-                                    strokeColor: '#1E90FF',
-                                    strokeWeight: 2,
-                                    strokeOpacity: 0.8
-                                });
-                                map.add(polyline);
-                            });
-                        }
-                    });
-                })
-                .catch(error => console.error('加载河流数据失败:', error));
-
-            // 加载四川边界数据
-            fetch('../data/四川shp.json')
-                .then(response => response.json())
-                .then(data => {
-                    data.geometries.forEach(geometry => {
-                        if (geometry.type === 'Polygon') {
-                            var path = geometry.coordinates[0].map(coord => [coord[0], coord[1]]);
-                            var polygon = new AMap.Polygon({
-                                path: path,
-                                strokeColor: '#FF0000',
-                                strokeWeight: 2,
-                                strokeOpacity: 0.8,
-                                fillColor: '#FFFFFF',
-                                fillOpacity: 0.1
-                            });
-                            map.add(polygon);
-                        }
-                    });
-                })
-                .catch(error => console.error('加载边界数据失败:', error));
-
-            // 确保在DOM加载完成后初始化图表
-            console.log('DOM loaded, initializing charts...');
+          
             
             // 植被分布数据
             var vegetationData = {
